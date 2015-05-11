@@ -1,0 +1,20 @@
+{
+  "name": "Chess.ai.js",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "bower": "^1.4.1",
+    "grunt": "^0.4.5"
+  },
+  "dependencies": {
+    "browserify": "^10.1.3",
+    "lodash": "^3.8.0",
+    "watchify": "^3.2.1"
+  }
+}
