@@ -1,16 +1,33 @@
-var ChessBoardRepresentation = require('./ChessBoardRepresentation');
+var _ = require('lodash');
+var ChessAi = require('./Chess.ai');
 
-var chessBoardRepresentation = new ChessBoardRepresentation();
+var chessAi = new ChessAi();
 
-chessBoardRepresentation.populate();
+global.chessAi = chessAi;
 
-console.log('Fen notation: ' + chessBoardRepresentation.toFenNotation());
+var onDrop = function (source, target) {
+  if (_.isEqual(source, target))
+    return;
+
+  var move = {source: source, target: target};
+
+  if (chessAi.isMoveValid(move)) {
+    chessAi.makeMove(move);
+  } else {
+    return 'snapback';
+  }
+  console.log("White chess pieces: ", chessAi.board.whitePieces.length);
+  console.log("Black chess pieces: ", chessAi.board.blackPieces.length);
+};
 
 var boardCfg = {
   draggable: true,
-  position: 'start',
-  //onDragStart: onDragStart,
-  //onDrop: onDrop,
+  onDrop: onDrop
 };
 
 var board = new ChessBoard('chess-board', boardCfg);
+
+board.position(chessAi.getGameState());
+
+console.log("White chess pieces: ", chessAi.board.whitePieces.length);
+console.log("Black chess pieces: ", chessAi.board.blackPieces.length);
