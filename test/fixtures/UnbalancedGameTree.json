@@ -1,0 +1,87 @@
+{
+  "children": [
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "children": [
+                {
+                  "quality": 94
+                },
+                {
+                  "quality": 49
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "children": [
+            {
+              "children": [
+                {
+                  "quality": -49
+                }
+              ]
+            },
+            {
+              "children": [
+                {
+                  "quality": -9
+                },
+                {
+                  "quality": 24
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "children": [
+                {
+                  "quality": 78
+                },
+                {
+                  "quality": 68
+                }
+              ]
+            },
+            {
+              "children": [
+                {
+                  "quality": 94
+                },
+                {
+                  "quality": 11
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "children": [
+            {
+              "quality": 97
+            },
+            {
+              "quality": 98
+            },
+            {
+              "quality": 1
+            },
+            {
+              "quality": 69
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -10,7 +10,7 @@ var _ = require('lodash');
 module.exports = function (childStateGenerator, measurement, MAX_DEPTH) {
   var MAX_DEPTH = MAX_DEPTH || 4;
 
-  var minmax = function (parentState, player, depth) {
+  var minmax = function (parentState, depth) {
     if (depth == MAX_DEPTH) {
       return {
         state: parentState,
@@ -20,7 +20,7 @@ module.exports = function (childStateGenerator, measurement, MAX_DEPTH) {
 
     var selectFun = depth % 2 === 0 ? _.max : _.min;
 
-    var childStatesAndActions = childStateGenerator(parentState, player);
+    var childStatesAndActions = childStateGenerator(parentState);
 
     if (childStatesAndActions.length == 0) {
       return {
@@ -30,7 +30,7 @@ module.exports = function (childStateGenerator, measurement, MAX_DEPTH) {
     }
 
     var resultStates = childStatesAndActions.map(function (stateAndAction) {
-      var newState = (minmax(stateAndAction.state, player.getEnemy(), depth + 1));
+      var newState = (minmax(stateAndAction.state,  depth + 1));
 
       return {
         state: newState.state,
@@ -46,8 +46,8 @@ module.exports = function (childStateGenerator, measurement, MAX_DEPTH) {
   };
 
   return {
-    findSolution: function (state, player) {
-      return minmax(state, player, 0);
+    findSolution: function (state) {
+      return minmax(state, 0);
     }
   }
 };
