@@ -20,9 +20,18 @@ var onDrop = function (source, target) {
   console.log("Black chess pieces: ", chessAi.board.blackPieces.length);
 };
 
+// update the board position after the piece snap
+// for castling, en passant, pawn promotion
+var onSnapEnd = function() {
+  board.position(chessAi.getGameState());
+};
+
+
 var boardCfg = {
   draggable: true,
-  onDrop: onDrop
+  onDrop: onDrop,
+  onSnapEnd: onSnapEnd
+
 };
 
 var board = new ChessBoard('chess-board', boardCfg);

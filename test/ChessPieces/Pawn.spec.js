@@ -49,4 +49,39 @@ describe('Pawn', function() {
 
     expect(tu.checkMoves(possibleMoves, expectedMoves)).to.be.true;
   })
+
+  it('should be able to move 2 fields at begging', function() {
+    var board = new ChessBoardRepresentation();
+    var pawn = new ChessPiecesFactory.Pawn(ChessSet.black);
+
+    board.select(6, 2).occupyBy(pawn);
+
+    var possibleMoves = pawn.generateAllPossibleMoves();
+
+    expect(possibleMoves.length).to.be.equal(2);
+
+    var expectedMoves = [
+      tu.makeMove(5, 2),
+      tu.makeMove(4, 2)
+    ];
+
+    expect(tu.checkMoves(possibleMoves, expectedMoves)).to.be.true;
+  });
+
+  it('should behave correctly on last line', function() {
+    var board = new ChessBoardRepresentation();
+    var pawn = new ChessPiecesFactory.Pawn(ChessSet.white);
+
+    board.select(6, 2).occupyBy(pawn);
+
+    var possibleMoves = pawn.generateAllPossibleMoves();
+
+    expect(possibleMoves.length).to.be.equal(1);
+
+    var expectedMoves = [
+      tu.makeMove(7, 2)
+    ];
+
+    expect(tu.checkMoves(possibleMoves, expectedMoves)).to.be.true;
+  });
 });

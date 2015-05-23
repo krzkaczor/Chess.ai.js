@@ -1,0 +1,68 @@
+{
+  "children": [
+    {
+      "children": [
+        {
+          "quality": 85
+        },
+        {
+          "quality": -45
+        },
+        {
+          "quality": -44
+        },
+        {
+          "quality": 7
+        }
+      ]
+    },
+    {
+      "children": [
+        {
+          "quality": -38
+        },
+        {
+          "quality": -49
+        },
+        {
+          "quality": 82
+        },
+        {
+          "quality": -42
+        }
+      ]
+    },
+    {
+      "children": [
+        {
+          "quality": 60
+        },
+        {
+          "quality": -67
+        },
+        {
+          "quality": -47
+        },
+        {
+          "quality": 44
+        }
+      ]
+    },
+    {
+      "children": [
+        {
+          "quality": -12
+        },
+        {
+          "quality": -82
+        },
+        {
+          "quality": 96
+        },
+        {
+          "quality": 66
+        }
+      ]
+    }
+  ]
+}

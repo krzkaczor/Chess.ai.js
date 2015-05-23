@@ -59,9 +59,9 @@ ChessBoardRepresentation.prototype = {
   /**
    * Performs deep copy
    */
-  deepCopy: function() {
+  deepCopy: function () {
     var other = new ChessBoardRepresentation();
-    
+
     other.board = _.cloneDeep(this.board, function (value) {
       if (value instanceof ChessBoardField) {
         var clonedField = value.clone(other);
@@ -133,29 +133,66 @@ ChessBoardRepresentation.prototype = {
   /**
    * Every chess piece placed on chess board should be registered
    * @param chessPiece {ChessPiece}
-   * @return {ChessPiece}this.register(
+   * @return {ChessPiece}
    */
-  register: function(chessPiece) {
-    if (chessPiece.set.isWhite()) {
-      this.whitePieces.push(chessPiece);
-    } else {
-      this.blackPieces.push(chessPiece);
-    }
+  register: function (chessPiece) {
+    this.getPiecesForSet(chessPiece.set).push(chessPiece);
     return chessPiece;
   },
 
   /**
+   * Get chess pieces for given chessSet
+   * @param chessSet {ChessSet}
+   * @returns {Array}
+   */
+  getPiecesForSet: function (chessSet) {
+    return chessSet.isWhite() ? this.whitePieces : this.blackPieces;
+  },
+  /**
    * Performs move
    * @param move.source {object} - object representation source field
    * @param move.target {object} - object representation target field
+   * @return {ChessBoardRepresentation}
    */
   makeMove: function (move) {
     var newChessBoard = this.deepCopy();
     var sourceField = newChessBoard.select(move.source);
     var targetField = newChessBoard.select(move.target);
     targetField.occupyBy(sourceField.clear());
+    //newChessBoard.finish();
     return newChessBoard;
-  }
+  },
+
+  /**
+   * Generates all possible moves
+   * @param chessSet {ChessSet} - which chessSet is moving?
+   */
+  generateAllPossibleMovesForSet: function (chessSet) {
+    return _.flatten(this.getPiecesForSet(chessSet).map(function (chessPiece) {
+      return chessPiece.generateAllPossibleMoves().map(function (target) {
+        return {
+          source: chessPiece.field.toSimpleField(),
+          target: target
+        };
+      });
+    }));
+  },
+
+  ///**
+  // * Finish chess board building.
+  // */
+  //process: function() {
+  //  var self = this;
+  //
+  //  var whiteMoves = this.generateAllPossibleMovesForSet(ChessSet.white);
+  //  whiteMoves.filter(function(move) {
+  //    var target = self.select(move);
+  //    return target.chessPiece && target.chessPiece.name == 'k';
+  //  });
+  //  //sprawdz czy szach
+  //  //sprawdz czy mat
+  //}
+
 };
 
 module.exports = ChessBoardRepresentation;

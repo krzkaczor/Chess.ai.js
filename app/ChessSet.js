@@ -26,10 +26,21 @@ ChessSet.prototype = {
 
   isFriendOf : function(otherSet) {
     return this.setName === otherSet.setName;
+  },
+
+  /**
+   * Returns enemy set
+   * @returns {ChessSet}
+   */
+  getEnemy : function() {
+    return this.isWhite()? sets.black : sets.white;
   }
 };
 
-module.exports = {
+var sets = {
   white: new ChessSet('w'),
   black: new ChessSet('b')
-}
+};
+
+
+module.exports = sets;

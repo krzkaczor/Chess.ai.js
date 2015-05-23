@@ -1,3 +1,5 @@
+var _ = require('lodash');
+
 var ChessBoardField = function (board, row, col, chessPiece) {
   this.board = board;
   this.row = row;
@@ -16,6 +18,11 @@ ChessBoardField.prototype = {
    * @return {ChessBoardField}
    */
   occupyBy: function (chessPiece) {
+    //if there is chess piece on that field beat it
+    if(this.chessPiece) {
+      _.pull(this.board.getPiecesForSet(this.chessPiece.set), this.chessPiece);
+    }
+
     this.chessPiece = chessPiece;
     this.chessPiece.field = this;
     return this;
@@ -85,6 +92,7 @@ ChessBoardField.prototype = {
   clear: function () {
     var chessPiece = this.chessPiece;
     this.chessPiece = undefined;
+
     return chessPiece;
   }
 };

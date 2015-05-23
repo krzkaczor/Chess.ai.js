@@ -50,9 +50,8 @@ module.exports = function () {
   Pawn.prototype.constructor = Pawn;
 
   Pawn.prototype.generateAllPossibleMoves = function () {
-    var offset = this.set.isWhite() ? +1 : -1;
     var isWhite = this.set.isWhite();
-    var notTouched = (isWhite && this.field.row == 1) || (!isWhite && this.field.row == CHESS_CFG.BOARD_SIZE - 1);
+    var notTouched = (isWhite && this.field.row == 1) || (!isWhite && this.field.row == CHESS_CFG.BOARD_SIZE - 2);
 
     //@todo create set prototype
     var isEnemySet = function(set) {
@@ -67,21 +66,22 @@ module.exports = function () {
     if (fieldAhead.isEmpty()) {
       possibleMoves.push(fieldAhead);
     }
+    if (fieldAhead) {
+      //2. Move two fields ahead when not touched before (it's on first line)
+      var aheadAheadField = fieldAhead.selectAhead(this.set);
+      if (aheadAheadField && fieldAhead.isEmpty() && aheadAheadField.isEmpty() && notTouched) {
+        possibleMoves.push(aheadAheadField);
+      }
 
-    //2. Move two fields ahead when not touched before (it's on first line)
-    var aheadAheadField = fieldAhead.selectAhead(this.set);
-    if (fieldAhead.isEmpty() && aheadAheadField.isEmpty() && notTouched) {
-      possibleMoves.push(aheadAheadField);
-    }
-
-    //3. Beat enemy standing @todo
-    var enemyFieldLeft = fieldAhead.selectLeft();
-    if (enemyFieldLeft && !enemyFieldLeft.isEmpty() && isEnemySet(enemyFieldLeft.chessPiece.set)) {
-      possibleMoves.push(enemyFieldLeft);
-    }
-    var enemyFieldRight = fieldAhead.selectRight();
-    if (enemyFieldRight && !enemyFieldRight.isEmpty() && isEnemySet(enemyFieldRight.chessPiece.set)) {
-      possibleMoves.push(enemyFieldRight);
+      //3. Beat enemy standing @todo
+      var enemyFieldLeft = fieldAhead.selectLeft();
+      if (enemyFieldLeft && !enemyFieldLeft.isEmpty() && isEnemySet(enemyFieldLeft.chessPiece.set)) {
+        possibleMoves.push(enemyFieldLeft);
+      }
+      var enemyFieldRight = fieldAhead.selectRight();
+      if (enemyFieldRight && !enemyFieldRight.isEmpty() && isEnemySet(enemyFieldRight.chessPiece.set)) {
+        possibleMoves.push(enemyFieldRight);
+      }
     }
 
     //4. @todo it is not that important for now en route (?)

@@ -2,6 +2,8 @@ var expect = require('chai').expect;
 var _ = require('lodash');
 var tu = require('./TestUtils');
 var ChessBoardRepresentation = require('../app/Chessboard/ChessBoardRepresentation');
+var ChessPiecesFactory = require('../app/ChessPiecesFactory')();
+var ChessSet = require('../app/ChessSet');
 
 describe('ChessBoardRepresentation', function() {
 
@@ -53,5 +55,43 @@ describe('ChessBoardRepresentation', function() {
         }
       }
     }
+
+    expect(newBoard.toFenNotation()).to.be.equal("rnbqkbnr/pppppppp/8/8/1P6/8/P1PPPPPP/RNBQKBNR");
   });
+
+  it('should generate all possible moves for game state', function() {
+    var board = new ChessBoardRepresentation();
+    var whitePawn = new ChessPiecesFactory.Pawn(ChessSet.white);
+    var blackPawn = new ChessPiecesFactory.Pawn(ChessSet.black);
+
+    board.select(1, 0).occupyBy(board.register(whitePawn));
+    board.select(6, 0).occupyBy(board.register(blackPawn));
+
+    var whiteMoves = board.generateAllPossibleMovesForSet(ChessSet.white);
+    var blackMoves = board.generateAllPossibleMovesForSet(ChessSet.black);
+
+    expect(whiteMoves.length).to.be.equal(2);
+    expect(board.makeMove(whiteMoves[0]).toFenNotation()).to.be.equal("8/p7/8/8/8/P7/8/8");
+    expect(board.makeMove(whiteMoves[1]).toFenNotation()).to.be.equal("8/p7/8/8/P7/8/8/8");
+
+    expect(blackMoves.length).to.be.equal(2);
+    expect(board.makeMove(blackMoves[0]).toFenNotation()).to.be.equal("8/8/p7/8/8/8/P7/8");
+    expect(board.makeMove(blackMoves[1]).toFenNotation()).to.be.equal("8/8/8/p7/8/8/P7/8");
+  });
+
+  it('should allow to beat enemy', function() {
+    var board = new ChessBoardRepresentation();
+    var whitePawn = new ChessPiecesFactory.Pawn(ChessSet.white);
+    var blackPawn = new ChessPiecesFactory.Pawn(ChessSet.black);
+
+    board.select(1, 0).occupyBy(board.register(whitePawn));
+    board.select(2, 1).occupyBy(board.register(blackPawn));
+
+    var newBoard = board.makeMove({
+      source: tu.makeMove(1, 0),
+      target: tu.makeMove(2, 1)
+    });
+
+    expect(newBoard.blackPieces.length).to.be.equal(0);
+  })
 });

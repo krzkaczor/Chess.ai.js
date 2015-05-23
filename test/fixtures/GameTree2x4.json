@@ -1,0 +1,124 @@
+{
+  "id": 0,
+  "children": [
+    {
+      "id": 1,
+      "children": [
+        {
+          "id": 2,
+          "children": [
+            {
+              "id": 3,
+              "children": [
+                {
+                  "id": 4,
+                  "quality": 36
+                },
+                {
+                  "id": 5,
+                  "quality": 72
+                }
+              ]
+            },
+            {
+              "id": 6,
+              "children": [
+                {
+                  "id": 7,
+                  "quality": -39
+                },
+                {
+                  "id": 8,
+                  "quality": 9
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 9,
+          "children": [
+            {
+              "id": 10,
+              "children": [
+                {
+                  "id": 11,
+                  "quality": -65
+                },
+                {
+                  "id": 12,
+                  "quality": -97
+                }
+              ]
+            },
+            {
+              "id": 13,
+              "children": [
+                {
+                  "id": 14,
+                  "quality": 53
+                },
+                {
+                  "id": 15,
+                  "quality": 87
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "children": [
+                {
+                  "quality": -25
+                },
+                {
+                  "quality": 96
+                }
+              ]
+            },
+            {
+              "children": [
+                {
+                  "quality": 38
+                },
+                {
+                  "quality": 35
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "children": [
+            {
+              "children": [
+                {
+                  "quality": 35
+                },
+                {
+                  "quality": -39
+                }
+              ]
+            },
+            {
+              "children": [
+                {
+                  "quality": 68
+                },
+                {
+                  "quality": -97
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
