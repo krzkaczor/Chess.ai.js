@@ -2,39 +2,29 @@ var _ = require('lodash');
 
 /**
  * Alpha Beta improvement to minmax
- * @param childStateGenerator {function} - returns child states binded with action or empty array MUST BE STABLE
+ * @param childStateIterator {function} - returns iterators of child states binded with action MUST BE STABLE
  * @param measurement {function} - returns quality of given state
  * @param [MAX_DEPTH=4]
- * @returns {AiStrategy}
+ * @returns {Object}
  */
 module.exports = function (childStateIterator, measurement, MAX_DEPTH) {
   var MAX_DEPTH = MAX_DEPTH || 4;
 
-  var minmax = function (parentState) {
-    var res = alphabeta(parentState, 0,-Number.MAX_VALUE, Number.MAX_VALUE);
-    return {
-      state: res.state,
-      action: res.action,
-      value: res.value
-    }
-  };
-
-  var alphabeta = function(parentState, depth, alpha, beta) {
-    var childState;
-    var res;
+  var alphabeta = function (parentState, depth, alpha, beta) {
+    var childState, res;
     var best = {};
+
     var it = childStateIterator(parentState);
     if (depth == MAX_DEPTH || !it.hasNext()) {
       return {
-        action: 0,
-        value: measurement(parentState),
+        action: undefined,
+        value: measurement(parentState)
       };
     }
 
-    var max = depth % 2 === 0;
-
-    if (!max) {
-      while(it.hasNext()) {
+    //refactor...
+    if (depth % 2 === 1) {
+      while (it.hasNext()) {
         childState = it.next();
         res = alphabeta(childState.state, depth + 1, alpha, beta);
         if (res.value < beta) {
@@ -50,7 +40,7 @@ module.exports = function (childStateIterator, measurement, MAX_DEPTH) {
       best.value = beta;
       return best;
     } else {
-      while(it.hasNext()) {
+      while (it.hasNext()) {
         childState = it.next();
         res = alphabeta(childState.state, depth + 1, alpha, beta);
 
@@ -70,8 +60,8 @@ module.exports = function (childStateIterator, measurement, MAX_DEPTH) {
   };
 
   return {
-    findSolution: function (state) {
-      return minmax(state, 0);
+    findSolution: function (initialState) {
+      return alphabeta(initialState, 0,-Number.MAX_VALUE, Number.MAX_VALUE);
     }
   }
 };

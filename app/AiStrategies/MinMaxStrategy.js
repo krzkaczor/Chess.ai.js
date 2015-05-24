@@ -5,49 +5,41 @@ var _ = require('lodash');
  * @param childStateGenerator {function} - returns child states binded with action or empty array MUST BE STABLE
  * @param measurement {function} - returns quality of given state
  * @param [MAX_DEPTH=4]
- * @returns {AiStrategy}
+ * @returns {Object}
  */
 module.exports = function (childStateGenerator, measurement, MAX_DEPTH) {
   var MAX_DEPTH = MAX_DEPTH || 4;
 
   var minmax = function (parentState, depth) {
-    if (depth == MAX_DEPTH) {
-      return {
-        state: parentState,
-        action: undefined
-      };
-    }
-
-    var selectFun = depth % 2 === 0 ? _.max : _.min;
 
     var childStatesAndActions = childStateGenerator(parentState);
-
-    if (childStatesAndActions.length == 0) {
+    if (depth == MAX_DEPTH || childStatesAndActions.length == 0) {
       return {
-        state: parentState,
+        value: measurement(parentState),
         action: undefined
       };
     }
 
+    var extremeFunction = depth % 2 === 0 ? _.max : _.min;
+
     var resultStates = childStatesAndActions.map(function (stateAndAction) {
-      var newState = (minmax(stateAndAction.state,  depth + 1));
+      var result = (minmax(stateAndAction.state,  depth + 1));
 
       return {
-        state: newState.state,
+        value: result.value,
         action: stateAndAction.action
       };
     });
 
-    var best = selectFun(resultStates, function (stateAndAction) {
-      return measurement(stateAndAction.state);
+    //founds list extremum and returns valueAction object
+    return extremeFunction(resultStates, function (valueAndAction) {
+      return valueAndAction.value;
     });
-
-    return best;
   };
 
   return {
-    findSolution: function (state) {
-      return minmax(state, 0);
+    findSolution: function (initialState) {
+      return minmax(initialState, 0);
     }
   }
 };

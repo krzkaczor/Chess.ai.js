@@ -60,7 +60,7 @@ describe('Alpha Beta Strategy', function () {
     expect(minMax.findSolution(states).action).to.be.equal(0);
   });
 
-  it('should find best solution on complex tree2', function () {
+  it('should find best solution on unbalanced tree', function () {
     var states = fx.UnbalancedGameTree;
 
     var minMax = Strategy(childStateIterator, measurement);
