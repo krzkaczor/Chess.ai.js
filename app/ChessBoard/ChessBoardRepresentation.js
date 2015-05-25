@@ -9,6 +9,7 @@ var CHESS_BOARD_ID = 0; //useful for debug
 var ChessBoardRepresentation = function () {
   this.CHESS_BOARD_ID = CHESS_BOARD_ID++;
 
+  this.setInControl = ChessSet.white;
   this.whitePieces = [];
   this.blackPieces = [];
 
@@ -156,26 +157,11 @@ ChessBoardRepresentation.prototype = {
    */
   makeMove: function (move) {
     var newChessBoard = this.deepCopy();
+    newChessBoard.setInControl = this.setInControl.getEnemy();
     var sourceField = newChessBoard.select(move.source);
     var targetField = newChessBoard.select(move.target);
     targetField.occupyBy(sourceField.clear());
-    //newChessBoard.finish();
     return newChessBoard;
-  },
-
-  /**
-   * Generates all possible moves
-   * @param chessSet {ChessSet} - which chessSet is moving?
-   */
-  generateAllPossibleMovesForSet: function (chessSet) {
-    return _.flatten(this.getPiecesForSet(chessSet).map(function (chessPiece) {
-      return chessPiece.generateAllPossibleMoves().map(function (target) {
-        return {
-          source: chessPiece.field.toSimpleField(),
-          target: target
-        };
-      });
-    }));
   },
 
   ///**

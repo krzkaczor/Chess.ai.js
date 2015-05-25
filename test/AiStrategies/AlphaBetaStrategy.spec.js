@@ -24,10 +24,6 @@ describe('Alpha Beta Strategy', function () {
 
       next: function () {
         return data[currentIndex++];
-      },
-
-      getIndex: function() {
-        return currentIndex;
       }
     }
   };

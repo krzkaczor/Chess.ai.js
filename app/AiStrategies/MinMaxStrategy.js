@@ -11,7 +11,6 @@ module.exports = function (childStateGenerator, measurement, MAX_DEPTH) {
   var MAX_DEPTH = MAX_DEPTH || 4;
 
   var minmax = function (parentState, depth) {
-
     var childStatesAndActions = childStateGenerator(parentState);
     if (depth == MAX_DEPTH || childStatesAndActions.length == 0) {
       return {
@@ -19,7 +18,6 @@ module.exports = function (childStateGenerator, measurement, MAX_DEPTH) {
         action: undefined
       };
     }
-
     var extremeFunction = depth % 2 === 0 ? _.max : _.min;
 
     var resultStates = childStatesAndActions.map(function (stateAndAction) {
@@ -31,7 +29,7 @@ module.exports = function (childStateGenerator, measurement, MAX_DEPTH) {
       };
     });
 
-    //founds list extremum and returns valueAction object
+    //founds extremum list and returns valueAction object
     return extremeFunction(resultStates, function (valueAndAction) {
       return valueAndAction.value;
     });

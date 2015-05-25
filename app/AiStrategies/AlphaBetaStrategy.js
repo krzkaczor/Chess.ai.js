@@ -27,10 +27,11 @@ module.exports = function (childStateIterator, measurement, MAX_DEPTH) {
       while (it.hasNext()) {
         childState = it.next();
         res = alphabeta(childState.state, depth + 1, alpha, beta);
+
         if (res.value < beta) {
           beta = res.value;
           best = res;
-          best.action = it.getIndex() - 1; //currently it points to next item
+          best.action = childState.action;
         }
         if (alpha >= beta) {
           break;
@@ -47,9 +48,9 @@ module.exports = function (childStateIterator, measurement, MAX_DEPTH) {
         if (res.value > alpha) {
           alpha = res.value;
           best = res;
-          best.action = it.getIndex() - 1; //currently it points to next item
+          best.action = childState.action;
         }
-        if (alpha > beta) {
+        if (alpha >= beta) {
           break;
         }
       }
@@ -61,6 +62,7 @@ module.exports = function (childStateIterator, measurement, MAX_DEPTH) {
 
   return {
     findSolution: function (initialState) {
+      console.log("Firing Alpha Beta with max depth: " + MAX_DEPTH);
       return alphabeta(initialState, 0,-Number.MAX_VALUE, Number.MAX_VALUE);
     }
   }

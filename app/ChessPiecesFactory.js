@@ -63,7 +63,7 @@ module.exports = function () {
     //pawn can:
     //1. Move one field ahead if it is empty
     var fieldAhead = this.field.selectAhead(this.set);
-    if (fieldAhead.isEmpty()) {
+    if (fieldAhead && fieldAhead.isEmpty()) {
       possibleMoves.push(fieldAhead);
     }
     if (fieldAhead) {

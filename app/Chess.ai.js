@@ -2,10 +2,15 @@ var _ = require('lodash');
 var ChessBoardRepresentation = require('./ChessBoard/ChessBoardRepresentation');
 var ChessSet = require('./ChessSet');
 var RandomStrategy = require('./AiStrategies/RandomStrategy');
+var MinMaxStrategy = require('./AiStrategies/MinMaxStrategy');
+var AlphaBetaStrategy = require('./AiStrategies/AlphaBetaStrategy');
+var StatesGenerator = require('./StateGenerators/StatesGenerator');
+var StatesIterator = require('./StateGenerators/StatesIterator');
+var WeightedMeasure = require('./ChessBoardMeasurements/WeightedMeasure');
 
 var defaultOptions = {
   set: 'b', //computer starts as black
-  strategy: 'random' //okkkkkaaaayyyy
+  strategy: 'alphabeta'
 };
 
 var ChessAi = function(options) {
@@ -15,10 +20,22 @@ var ChessAi = function(options) {
 
   switch(options.strategy) {
     case 'random': this.aiStrategy = new RandomStrategy(); break;
+    case 'minmax':
+      var childStateGenerator = StatesGenerator();
+      var measurement = WeightedMeasure(this.aiSet);
+
+      this.aiStrategy = MinMaxStrategy(childStateGenerator.generateChildrenStates, measurement, 3);
+      break;
+    case 'alphabeta':
+      var childStateIterator = StatesIterator;
+      var measurement = WeightedMeasure(this.aiSet);
+
+      this.aiStrategy = AlphaBetaStrategy(childStateIterator, measurement, 5);
+      break;
     default: throw new Error('Unsupported strategy'); break;
   }
 
-  this.board = ChessBoardRepresentation.startingPopulation();
+  this.board = options.initialState || ChessBoardRepresentation.startingPopulation();
   this.gameHistory = [];
 };
 
@@ -50,7 +67,7 @@ ChessAi.prototype.makeMove = function(playerMove) {
   this.board = this.board.makeMove(playerMove);
 
   //ai move
-  this.board = this.board.makeMove(this.aiStrategy.findMove(this.board, this.aiSet));
+  this.board = this.board.makeMove(this.aiStrategy.findSolution(this.board, this.aiSet).action);
 };
 
 
