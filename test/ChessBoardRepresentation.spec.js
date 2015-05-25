@@ -77,5 +77,28 @@ describe('ChessBoardRepresentation', function() {
 
     expect(newBoard.setInControl).to.be.equal(ChessSet.black);
     expect(newBoard.blackPieces.length).to.be.equal(0);
-  })
+  });
+
+  it('should recognise check', function() {
+    var state = tu.generateBasicGameState();
+    state.select(5, 4).occupyBy(state.register(new ChessPiecesFactory.Queen(ChessSet.white)));
+
+    expect(state.isCheck(ChessSet.black)).to.be.true;
+    expect(state.isCheckMate(ChessSet.black)).to.be.false;
+
+    expect(state.isCheck(ChessSet.white)).to.be.false;
+    expect(state.isCheckMate(ChessSet.white)).to.be.false;
+  });
+
+  it('should recognise checkmate', function() {
+    var state = tu.generateBasicGameState();
+    state.select(6, 4).occupyBy(state.register(new ChessPiecesFactory.Queen(ChessSet.white)));
+    state.select(5, 4).occupyBy(state.register(new ChessPiecesFactory.Queen(ChessSet.white)));
+
+    expect(state.isCheck(ChessSet.black)).to.be.true;
+    expect(state.isCheckMate(ChessSet.black)).to.be.true;
+
+    expect(state.isCheck(ChessSet.white)).to.be.false;
+    expect(state.isCheckMate(ChessSet.white)).to.be.false;
+  });
 });

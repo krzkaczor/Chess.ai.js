@@ -164,20 +164,66 @@ ChessBoardRepresentation.prototype = {
     return newChessBoard;
   },
 
-  ///**
-  // * Finish chess board building.
-  // */
-  //process: function() {
-  //  var self = this;
-  //
-  //  var whiteMoves = this.generateAllPossibleMovesForSet(ChessSet.white);
-  //  whiteMoves.filter(function(move) {
-  //    var target = self.select(move);
-  //    return target.chessPiece && target.chessPiece.name == 'k';
-  //  });
-  //  //sprawdz czy szach
-  //  //sprawdz czy mat
-  //}
+  /**
+   * Check if there is check mate or if there is king on field
+   * @param chessSet
+   * @returns {boolean}
+   */
+  isCheckMate: function(chessSet) {
+    var king = _.find(this.getPiecesForSet(chessSet), function(piece) {
+      return piece.name = 'king';
+    });
+
+    if (!king) {
+      return true;
+    }
+
+    var kingField = king.field.toSimpleField();
+
+    var fieldsInRangeOfEnemy = _.flatten(this.getPiecesForSet(chessSet.getEnemy()).map(function(piece) {
+      return piece.generateAllPossibleMoves();
+    }));
+
+
+    function hasField(fieldCollection, searched) {
+      return !!_.find(fieldCollection, function(fieldInRange) {
+        return fieldInRange.row == searched.row && fieldInRange.col == searched.col;
+      });
+    }
+
+    var isCheck = hasField(fieldsInRangeOfEnemy, kingField);
+
+    if (!isCheck) {
+      return false;
+    }
+
+    var board = this;
+    return _.every(king.generateAllPossibleMoves(), function(possibleMove) {
+      //build new board in case of checking field that is occupied by enemy - if there is still check then that move is not valid.
+      //maybe it sounds expensive but in worst case it will be performed only once
+      return hasField(fieldsInRangeOfEnemy, possibleMove) || board.makeMove({source: kingField, target: possibleMove}).isCheck(chessSet);
+    });
+  },
+
+  /**
+   * Is check. Note: Quite expensive call
+   */
+  isCheck: function(chessSet) {
+    var king = _.find(this.getPiecesForSet(chessSet), function(piece) {
+      return piece.name = 'king';
+    });
+
+    var kingField = king.field.toSimpleField();
+
+    var fieldsInRangeOfEnemy = _.flatten(this.getPiecesForSet(chessSet.getEnemy()).map(function(piece) {
+      return piece.generateAllPossibleMoves();
+    }));
+
+    return !!_.find(fieldsInRangeOfEnemy, function(fieldInRange) {
+      return fieldInRange.row == kingField.row && fieldInRange.col == kingField.col;
+    });
+  }
+
 
 };
 
