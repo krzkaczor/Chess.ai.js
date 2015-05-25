@@ -49,8 +49,8 @@ var ChessAi = function(options) {
  */
 ChessAi.prototype.isMoveValid = function(move) {
   move = moveWithStringNotationToMoveWithPosition(move);
-  isValid = this.board.select(move.source).getChessPiece().canMove(move.target);
-
+  var isValid = this.board.select(move.source).getChessPiece().canMove(move.target);
+  return isValid;
 };
 
 /**
