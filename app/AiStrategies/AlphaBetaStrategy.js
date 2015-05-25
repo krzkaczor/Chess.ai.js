@@ -26,6 +26,11 @@ module.exports = function (childStateIterator, measurement, MAX_DEPTH) {
     if (depth % 2 === 1) {
       while (it.hasNext()) {
         childState = it.next();
+
+        if (!best) {
+          best = childState;
+        }
+
         res = alphabeta(childState.state, depth + 1, alpha, beta);
 
         if (res.value < beta) {
@@ -43,6 +48,11 @@ module.exports = function (childStateIterator, measurement, MAX_DEPTH) {
     } else {
       while (it.hasNext()) {
         childState = it.next();
+
+        if (!best) {
+          best = childState;
+        }
+
         res = alphabeta(childState.state, depth + 1, alpha, beta);
 
         if (res.value > alpha) {

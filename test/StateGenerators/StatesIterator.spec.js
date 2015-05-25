@@ -6,7 +6,7 @@ var ChessPiecesFactory = require('../../app/ChessPiecesFactory')();
 var ChessSet = require('../../app/ChessSet');
 var StatesIterator = require('../../app/StateGenerators/StatesIterator');
 
-describe('state Generator', function() {
+describe('State Iterator', function() {
   it('should generate all possible child states for game state', function() {
     var initState = new ChessBoardRepresentation();
     initState.setInControl = ChessSet.black;

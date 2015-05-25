@@ -65,5 +65,4 @@ describe('Alpha Beta Strategy', function () {
     expect(minMax.findSolution(states).action).to.be.equal(1);
   });
 
-
 });

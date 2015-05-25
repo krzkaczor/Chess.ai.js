@@ -1,5 +1,7 @@
 var _ = require('lodash');
 var ChessAi = require('./Chess.ai');
+var WeightedMeasure = require('./ChessBoardMeasurements/WeightedMeasure');
+var ChessSet = require('./ChessSet');
 
 var chessAi = new ChessAi();
 
@@ -17,7 +19,9 @@ var onDrop = function (source, target) {
     return 'snapback';
   }
   console.log("White chess pieces: ", chessAi.board.whitePieces.length);
+  console.log("SCORE FOR WHITE: " + WeightedMeasure(ChessSet.white)(chessAi.board));
   console.log("Black chess pieces: ", chessAi.board.blackPieces.length);
+  console.log("SCORE FOR BLACK: " + WeightedMeasure(ChessSet.black)(chessAi.board));
 };
 
 // update the board position after the piece snap

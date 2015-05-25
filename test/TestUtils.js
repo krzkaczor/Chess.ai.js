@@ -1,6 +1,17 @@
+var ChessSet = require('../app/ChessSet');
+var ChessBoardRepresentation = require('../app/Chessboard/ChessBoardRepresentation');
+var ChessPiecesFactory = require('../app/ChessPiecesFactory')();
+
 module.exports = {
   makeMove: function (row, col) {
     return {row: row, col: col};
+  },
+  moveToStringNotation: function (move) {
+    function colToStr(col) {
+      return String.fromCharCode(col + 'a'.charCodeAt(0));
+    }
+
+    return colToStr(move.col) + (move.row + 1);
   },
   /**
    * Move can have more properties than only row and col.
@@ -28,5 +39,16 @@ module.exports = {
       }
     }
     return true;
+  },
+
+  generateBasicGameState: function() {
+    var board = new ChessBoardRepresentation();
+    var whiteKing = new ChessPiecesFactory.King(ChessSet.white);
+    var blackKing = new ChessPiecesFactory.King(ChessSet.black);
+
+    board.select(0, 4).occupyBy(board.register(whiteKing));
+    board.select(7, 4).occupyBy(board.register(blackKing));
+
+    return board;
   }
 };

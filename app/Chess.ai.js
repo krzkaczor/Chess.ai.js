@@ -10,7 +10,8 @@ var WeightedMeasure = require('./ChessBoardMeasurements/WeightedMeasure');
 
 var defaultOptions = {
   set: 'b', //computer starts as black
-  strategy: 'alphabeta'
+  strategy: 'minmax',
+  initialState: ChessBoardRepresentation.startingPopulation()
 };
 
 var ChessAi = function(options) {
@@ -30,12 +31,12 @@ var ChessAi = function(options) {
       var childStateIterator = StatesIterator;
       var measurement = WeightedMeasure(this.aiSet);
 
-      this.aiStrategy = AlphaBetaStrategy(childStateIterator, measurement, 5);
+      this.aiStrategy = AlphaBetaStrategy(childStateIterator, measurement, 6);
       break;
     default: throw new Error('Unsupported strategy'); break;
   }
 
-  this.board = options.initialState || ChessBoardRepresentation.startingPopulation();
+  this.board = options.initialState;
   this.gameHistory = [];
 };
 
@@ -48,7 +49,8 @@ var ChessAi = function(options) {
  */
 ChessAi.prototype.isMoveValid = function(move) {
   move = moveWithStringNotationToMoveWithPosition(move);
-  return this.board.select(move.source).getChessPiece().canMove(move.target);
+  isValid = this.board.select(move.source).getChessPiece().canMove(move.target);
+
 };
 
 /**
@@ -66,8 +68,9 @@ ChessAi.prototype.makeMove = function(playerMove) {
   this.gameHistory.push(this.board);
   this.board = this.board.makeMove(playerMove);
 
-  //ai move
-  this.board = this.board.makeMove(this.aiStrategy.findSolution(this.board, this.aiSet).action);
+  var aiMove = this.aiStrategy.findSolution(this.board, this.aiSet);
+  console.log("AiMove value: " + aiMove.value);
+  this.board = this.board.makeMove(aiMove.action);
 };
 
 
@@ -75,6 +78,7 @@ ChessAi.prototype.makeMove = function(playerMove) {
  * Get current game state in FEN notation
  * @returns {string}
  */
+//@todo: it should be noted in method name that it returns string
 ChessAi.prototype.getGameState = function() {
   return this.board.toFenNotation();
 };
@@ -92,5 +96,7 @@ var stringNotationToPosition = function(stringNotation) {
     row: parseInt(stringNotation[1] - 1)
   }
 };
+
+var check
 
 module.exports = ChessAi;
