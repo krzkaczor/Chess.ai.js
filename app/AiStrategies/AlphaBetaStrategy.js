@@ -82,8 +82,11 @@ module.exports = function (childStateIterator, measurement, MAX_DEPTH) {
 
   return {
     findSolution: function (initialState) {
-      console.log("Firing Alpha Beta with max depth: " + MAX_DEPTH);
+      //console.log("Firing Alpha Beta with max depth: " + MAX_DEPTH);
       return alphabeta(initialState, 0,-Number.MAX_VALUE, Number.MAX_VALUE);
+    },
+    increaseMaxDepth: function() {
+      MAX_DEPTH++;
     }
   }
 };

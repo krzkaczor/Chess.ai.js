@@ -53,6 +53,8 @@ ChessBoardRepresentation.startingPopulation = function () {
   boardObj.board[CHESS_CFG.BOARD_SIZE - 1][6].occupyBy(boardObj.register(new chessPieciesFactory.Knight(ChessSet.black)));
   boardObj.board[CHESS_CFG.BOARD_SIZE - 1][7].occupyBy(boardObj.register(new chessPieciesFactory.Rook(ChessSet.black)));
 
+  this.whitePieces = _.shuffle(this.whitePieces);
+  this.blackPieces = _.shuffle(this.blackPieces);
   return boardObj;
 };
 

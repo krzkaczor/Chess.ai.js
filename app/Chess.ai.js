@@ -24,6 +24,10 @@ var ChessAi = function(options) {
   var measurement = WeightedMeasure(this.aiSet);
 
   switch(options.strategy) {
+    case 'random':
+      var childStateGenerator = StatesGenerator();
+      this.aiStrategy = RandomStrategy(childStateGenerator.generateChildrenStates, measurement, options.depth);
+      break;
     case 'minmax':
       var childStateGenerator = StatesGenerator();
       this.aiStrategy = MinMaxStrategy(childStateGenerator.generateChildrenStates, measurement, options.depth);
