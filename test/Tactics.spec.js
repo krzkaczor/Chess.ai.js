@@ -110,7 +110,7 @@ describe('Tactics: AlphaBeta', function () {
 
     var chessAi = new ChessAi({
       strategy: 'minmax',
-      depth: 5,
+      depth: 3,
       initialState: board
     });
 
