@@ -38,7 +38,12 @@ ChessPiece.prototype.canMove = function (field) {
 };
 
 ChessPiece.prototype.generateAllPossibleMoves = function () {
-  throw new Error("Unimplemented method");
+  var moves = this._generateAllPossibleMoves();
+  var field = this.field;
+
+  return moves.filter(function(move) {
+    return !field.board.makeMove({source: field.toSimpleField(), target: move}).isCheck(field.board.setInControl);
+  })
 };
 
 var Pawn = function (chessSet, field) {
@@ -48,7 +53,7 @@ var Pawn = function (chessSet, field) {
 Pawn.prototype = new ChessPiece('pawn', 'p');
 Pawn.prototype.constructor = Pawn;
 
-Pawn.prototype.generateAllPossibleMoves = function () {
+Pawn.prototype._generateAllPossibleMoves = function () {
   var isWhite = this.set.isWhite();
   var notTouched = (isWhite && this.field.row == 1) || (!isWhite && this.field.row == CHESS_CFG.BOARD_SIZE - 2);
 
@@ -95,7 +100,7 @@ var Rook = function (chessSet, field) {
 
 Rook.prototype = new ChessPiece('rook', 'r');
 Rook.prototype.constructor = Rook;
-Rook.prototype.generateAllPossibleMoves = function () {
+Rook.prototype._generateAllPossibleMoves = function () {
   var possibleMoves = [];
 
   rangeSelector(this.field, 'selectLeft', possibleMoves);
@@ -113,7 +118,7 @@ var Knight = function (chessSet, field) {
 };
 Knight.prototype = new ChessPiece('knight', 'n');
 Knight.prototype.constructor = Knight;
-Knight.prototype.generateAllPossibleMoves = function () {
+Knight.prototype._generateAllPossibleMoves = function () {
   var possibleMoves = [];
 
   var validateAndAdd = function (rowOffset, colOffset) {
@@ -140,7 +145,7 @@ var Bishop = function (chessSet, field) {
 };
 Bishop.prototype = new ChessPiece('bishop', 'b');
 Bishop.prototype.constructor = Bishop;
-Bishop.prototype.generateAllPossibleMoves = function () {
+Bishop.prototype._generateAllPossibleMoves = function () {
   var possibleMoves = [];
 
   rangeSelector(this.field, 'selectUpperRight', possibleMoves);
@@ -157,7 +162,7 @@ var Queen = function (chessSet, field) {
 };
 Queen.prototype = new ChessPiece('queen', 'q');
 Queen.prototype.constructor = Queen;
-Queen.prototype.generateAllPossibleMoves = function () {
+Queen.prototype._generateAllPossibleMoves = function () {
   var possibleMoves = [];
 
   rangeSelector(this.field, 'selectUpperRight', possibleMoves);
@@ -179,7 +184,7 @@ var King = function (chessSet, field) {
 };
 King.prototype = new ChessPiece('king', 'k');
 King.prototype.constructor = King;
-King.prototype.generateAllPossibleMoves = function () {
+King.prototype._generateAllPossibleMoves = function () {
   var possibleMoves = [];
 
   var set = this.set;

@@ -57,7 +57,7 @@ describe('King', function() {
     expect(tu.checkMoves(possibleMoves, expectedMoves)).to.be.true;
   });
 
-  it('should be able to enemy chess piece', function() {
+  it('should be able to beat enemy chess piece', function() {
     var board = new ChessBoardRepresentation();
     var king = new ChessPiecesFactory.King(ChessSet.white);
     var pawn = new ChessPiecesFactory.Pawn(ChessSet.black);
@@ -67,14 +67,12 @@ describe('King', function() {
 
     var possibleMoves = king.generateAllPossibleMoves();
 
-    expect(possibleMoves.length).to.be.equal(8);
+    expect(possibleMoves.length).to.be.equal(6);
 
     var expectedMoves = [
       tu.makeMove(5, 3),
       tu.makeMove(5, 4),
       tu.makeMove(5, 5),
-      tu.makeMove(4, 3),
-      tu.makeMove(4, 5),
       tu.makeMove(3, 3),
       tu.makeMove(3, 4),
       tu.makeMove(3, 5)

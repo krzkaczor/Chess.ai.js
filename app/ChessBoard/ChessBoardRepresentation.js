@@ -215,10 +215,14 @@ ChessBoardRepresentation.prototype = {
       return piece.name == 'king';
     });
 
+    if (!king) {
+      return false;
+    }
+
     var kingField = king.field.toSimpleField();
 
     var fieldsInRangeOfEnemy = _.flatten(this.getPiecesForSet(chessSet.getEnemy()).map(function(piece) {
-      return piece.generateAllPossibleMoves();
+      return piece._generateAllPossibleMoves(); //use method without check checking
     }));
 
     return !!_.find(fieldsInRangeOfEnemy, function(fieldInRange) {
