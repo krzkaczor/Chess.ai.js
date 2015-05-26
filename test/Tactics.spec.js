@@ -13,15 +13,13 @@ describe('Tactics: AlphaBeta', function () {
   it('should prefer to beat enemy', function () {
     var board = tu.generateBasicGameState();
 
-    board.select(0, 0).occupyBy(board.register(new ChessPiecesFactory.Pawn(ChessSet.white)));
+    board.select(1, 0).occupyBy(board.register(new ChessPiecesFactory.Pawn(ChessSet.white)));
     board.select(2, 1).occupyBy(board.register(new ChessPiecesFactory.Pawn(ChessSet.black)));
+    board.setInControl = ChessSet.black;
 
     var chessAi = new ChessAi({initialState: board});
-    var strMove = {
-      source: tu.moveToStringNotation(tu.makeMove(0, 0)),
-      target: tu.moveToStringNotation(tu.makeMove(1, 0))
-    };
-    chessAi.makeMove(strMove);
+    chessAi.aiMove();
+
     var state = chessAi.board;
 
     expect(state.blackPieces.length).to.be.eql(2);
@@ -31,16 +29,13 @@ describe('Tactics: AlphaBeta', function () {
   it('should prefer to beat more valuable enemy', function () {
     var board = tu.generateBasicGameState();
 
-    board.select(0, 0).occupyBy(board.register(new ChessPiecesFactory.Pawn(ChessSet.white)));
+    board.select(1, 0).occupyBy(board.register(new ChessPiecesFactory.Pawn(ChessSet.white)));
     board.select(1, 2).occupyBy(board.register(new ChessPiecesFactory.Queen(ChessSet.white)));
     board.select(2, 1).occupyBy(board.register(new ChessPiecesFactory.Pawn(ChessSet.black)));
+    board.setInControl = ChessSet.black;
 
     var chessAi = new ChessAi({initialState: board});
-    var strMove = {
-      source: tu.moveToStringNotation(tu.makeMove(0, 0)),
-      target: tu.moveToStringNotation(tu.makeMove(1, 0))
-    };
-    chessAi.makeMove(strMove);
+    chessAi.aiMove();
     var state = chessAi.board;
 
     expect(state.blackPieces.length).to.be.eql(2);
@@ -51,15 +46,12 @@ describe('Tactics: AlphaBeta', function () {
   it('should avoid being beaten', function () {
     var board = tu.generateBasicGameState();
 
-    board.select(1, 0).occupyBy(board.register(new ChessPiecesFactory.Rook(ChessSet.white)));
+    board.select(2, 0).occupyBy(board.register(new ChessPiecesFactory.Rook(ChessSet.white)));
     board.select(3, 3).occupyBy(board.register(new ChessPiecesFactory.Pawn(ChessSet.black)));
 
     var chessAi = new ChessAi({initialState: board});
-    var strMove = {
-      source: tu.moveToStringNotation(tu.makeMove(1, 0)),
-      target: tu.moveToStringNotation(tu.makeMove(2, 0))
-    };
-    chessAi.makeMove(strMove);
+    board.setInControl = ChessSet.black;
+    chessAi.aiMove();
     var state = chessAi.board;
 
 
@@ -77,28 +69,26 @@ describe('Tactics: AlphaBeta', function () {
     board.select(1, 3).occupyBy(board.register(new ChessPiecesFactory.Pawn(ChessSet.white)));
     board.select(0, 1).occupyBy(board.register(new ChessPiecesFactory.Bishop(ChessSet.white)));
     board.select(0, 2).occupyBy(board.register(new ChessPiecesFactory.Bishop(ChessSet.white)));
-    board.select(3, 3).occupyBy(board.register(new ChessPiecesFactory.Pawn(ChessSet.white)));
-
+    board.select(4, 3).occupyBy(board.register(new ChessPiecesFactory.Pawn(ChessSet.white)));
     board.select(0, 0).occupyBy(board.register(new ChessPiecesFactory.Rook(ChessSet.black)));
+    board.setInControl = ChessSet.black;
 
     var chessAi = new ChessAi({
       strategy: 'alphabeta',
       initialState: board
     });
-    var strMove = {
-      source: tu.moveToStringNotation(tu.makeMove(3, 3)),
-      target: tu.moveToStringNotation(tu.makeMove(4, 3))
-    };
-    chessAi.makeMove(strMove);
+
+    chessAi.aiMove();
     var state = chessAi.board;
     console.log("\n " + state.toFenNotation());
     expect(state.whitePieces.length).to.be.eql(7);
     expect(state.blackPieces.length).to.be.eql(2);
 
-    chessAi.makeMove({
+    chessAi.playerMove({
       source: tu.moveToStringNotation(tu.makeMove(4, 3)),
       target: tu.moveToStringNotation(tu.makeMove(5, 3))
     });
+    chessAi.aiMove();
     state = chessAi.board;
 
     expect(state.whitePieces.length).to.be.eql(6);
@@ -106,5 +96,32 @@ describe('Tactics: AlphaBeta', function () {
     console.log("\n " + state.toFenNotation());
   });
 
+  it('should avoid checkmate', function () {
+    var board = new ChessBoardRepresentation();
+
+    board.select(0, 0).occupyBy(board.register(new ChessPiecesFactory.King(ChessSet.white)));
+    board.select(7, 6).occupyBy(board.register(new ChessPiecesFactory.King(ChessSet.black)));
+    board.select(6, 5).occupyBy(board.register(new ChessPiecesFactory.Pawn(ChessSet.black)));
+    board.select(6, 7).occupyBy(board.register(new ChessPiecesFactory.Pawn(ChessSet.black)));
+
+    board.select(1, 6).occupyBy(board.register(new ChessPiecesFactory.Queen(ChessSet.white)));
+    board.select(0, 6).occupyBy(board.register(new ChessPiecesFactory.Rook(ChessSet.white)));
+    board.setInControl = ChessSet.black;
+
+    var chessAi = new ChessAi({
+      strategy: 'minmax',
+      depth: 5,
+      initialState: board
+    });
+
+    console.log("\nFEN: " + chessAi.board.toFenNotation());
+    expect(chessAi.board.isCheck(ChessSet.black)).to.be.true;
+
+    chessAi.aiMove();
+
+    console.log("FEN: " + chessAi.board.toFenNotation());
+
+    expect(chessAi.board.select(7,5).chessPiece).to.be.instanceOf(ChessPiecesFactory.King);
+  });
 
 });

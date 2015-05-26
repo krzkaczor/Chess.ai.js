@@ -11,6 +11,7 @@ var WeightedMeasure = require('./ChessBoardMeasurements/WeightedMeasure');
 var defaultOptions = {
   set: 'b', //computer starts as black
   strategy: 'alphabeta',
+  depth: '2',
   initialState: ChessBoardRepresentation.startingPopulation()
 };
 
@@ -21,18 +22,17 @@ var ChessAi = function(options) {
   this.playerSet = this.aiSet.getEnemy();
 
   switch(options.strategy) {
-    case 'random': this.aiStrategy = new RandomStrategy(); break;
     case 'minmax':
       var childStateGenerator = StatesGenerator();
       var measurement = WeightedMeasure(this.aiSet);
 
-      this.aiStrategy = MinMaxStrategy(childStateGenerator.generateChildrenStates, measurement, 3);
+      this.aiStrategy = MinMaxStrategy(childStateGenerator.generateChildrenStates, measurement, options.depth);
       break;
     case 'alphabeta':
       var childStateIterator = StatesIterator;
       var measurement = WeightedMeasure(this.aiSet);
 
-      this.aiStrategy = AlphaBetaStrategy(childStateIterator, measurement, 5);
+      this.aiStrategy = AlphaBetaStrategy(childStateIterator, measurement, options.depth);
       break;
     default: throw new Error('Unsupported strategy'); break;
   }
@@ -59,25 +59,36 @@ ChessAi.prototype.isMoveValid = function(move) {
 };
 
 /**
- * Caller makes move and AI makes move. Current implementation is single threaded so enjoy your blocked UI thread.
+ * Perform player's move.
  * @param playerMove - description of user's move
  * @param playerMove.source {string} - string representation of source field ex. a5
  * @param playerMove.target {string} - string representation of target field ex. a6
  * @returns {boolean} - is move legal
  */
-ChessAi.prototype.makeMove = function(playerMove) {
+ChessAi.prototype.playerMove = function(playerMove) {
+  if (this.board.setInControl != this.playerSet) {
+    throw new Error("IT IS NOT PLAYER'S TURN");
+  }
   if (!this.isMoveValid(playerMove))
     return null;
 
   playerMove = moveWithStringNotationToMoveWithPosition(playerMove);
   this.gameHistory.push(this.board);
   this.board = this.board.makeMove(playerMove);
+};
 
+
+/**
+ Find and perform move for AI. Current implementation is single threaded so enjoy your blocked UI thread.
+ */
+ChessAi.prototype.aiMove = function() {
+  if (this.board.setInControl != this.aiSet) {
+    throw new Error("IT IS NOT AI'S TURN");
+  }
   var aiMove = this.aiStrategy.findSolution(this.board, this.aiSet);
   console.log("AiMove value: " + aiMove.value);
   this.board = this.board.makeMove(aiMove.action);
 };
-
 
 /**
  * Get current game state in FEN notation

@@ -10,6 +10,8 @@ var pieceImportance = function (piece) {
       return 4;
     case 'queen' :
       return 9;
+    case 'king' :
+      return 10;
     default :
       throw new Error('Unknown chess piece');
   }
@@ -18,34 +20,22 @@ var pieceImportance = function (piece) {
 module.exports = function (player) {
   //manual curring...
   return function(state) {
-    //refactor
-    var hasOwnKing = false;
+    if (state.isCheckMate(player)){
+      return Number.MIN_VALUE;
+    }
+
+    if (state.isCheckMate(player.getEnemy())){
+      return Number.MAX_VALUE;
+    }
+
     var myScore = state.getPiecesForSet(player).reduce(function (a, piece) {
-      if (piece.name == 'king') {
-        hasOwnKing = true;
-        return a;
-      }
 
       return a + pieceImportance(piece);
     },0);
 
-    if (!hasOwnKing) {
-      return Number.MIN_VALUE;
-    }
-    var hasEnemyKing = false;
-
     var enemyScore = state.getPiecesForSet(player.getEnemy()).reduce(function (a, piece) {
-      if (piece.name == 'king') {
-        hasEnemyKing = true;
-        return a;
-      }
-
       return a + pieceImportance(piece);
     }, 0);
-
-    if (!hasEnemyKing) {
-      return Number.MAX_VALUE;
-    }
 
     return myScore - enemyScore;
   };
