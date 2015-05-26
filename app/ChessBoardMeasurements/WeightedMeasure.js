@@ -21,7 +21,7 @@ module.exports = function (player) {
   //manual curring...
   return function(state) {
     if (state.isCheckMate(player)){
-      return Number.MIN_VALUE;
+      return -Number.MAX_VALUE;
     }
 
     if (state.isCheckMate(player.getEnemy())){

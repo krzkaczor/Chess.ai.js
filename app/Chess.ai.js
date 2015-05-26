@@ -86,8 +86,9 @@ ChessAi.prototype.aiMove = function() {
     throw new Error("IT IS NOT AI'S TURN");
   }
   var aiMove = this.aiStrategy.findSolution(this.board, this.aiSet);
-  console.log("AiMove value: " + aiMove.value);
+
   this.board = this.board.makeMove(aiMove.action);
+  return aiMove;
 };
 
 /**

@@ -117,7 +117,9 @@ describe('Tactics: AlphaBeta', function () {
     console.log("\nFEN: " + chessAi.board.toFenNotation());
     expect(chessAi.board.isCheck(ChessSet.black)).to.be.true;
 
-    chessAi.aiMove();
+    var aiMove = chessAi.aiMove();
+
+    console.log(aiMove);
 
     console.log("FEN: " + chessAi.board.toFenNotation());
 
