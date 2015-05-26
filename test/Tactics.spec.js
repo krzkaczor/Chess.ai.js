@@ -2,15 +2,15 @@ var expect = require('chai').expect;
 var _ = require('lodash');
 var tu = require('./TestUtils');
 var ChessBoardRepresentation = require('../app/Chessboard/ChessBoardRepresentation');
-var ChessPiecesFactory = require('../app/ChessPiecesFactory')();
+var ChessPiecesFactory = require('../app/ChessPiecesFactory');
 var ChessSet = require('../app/ChessSet');
 var ChessAi = require('../app/Chess.ai');
 
 /**
-  Test cases to check AI behaviour in specific situations
+ Test cases to check AI behaviour in specific situations
  */
-describe('Tactics: AlphaBeta', function() {
-  it('should prefer to beat enemy', function() {
+describe('Tactics: AlphaBeta', function () {
+  it('should prefer to beat enemy', function () {
     var board = tu.generateBasicGameState();
 
     board.select(0, 0).occupyBy(board.register(new ChessPiecesFactory.Pawn(ChessSet.white)));
@@ -28,7 +28,7 @@ describe('Tactics: AlphaBeta', function() {
     expect(state.whitePieces.length).to.be.eql(1);
   });
 
-  it('should prefer to beat more valuable enemy', function() {
+  it('should prefer to beat more valuable enemy', function () {
     var board = tu.generateBasicGameState();
 
     board.select(0, 0).occupyBy(board.register(new ChessPiecesFactory.Pawn(ChessSet.white)));
@@ -48,7 +48,7 @@ describe('Tactics: AlphaBeta', function() {
     expect(state.toFenNotation()).to.be.eql("4k3/8/8/8/8/8/P1p5/4K3");
   });
 
-  it('should avoid being beaten', function() {
+  it('should avoid being beaten', function () {
     var board = tu.generateBasicGameState();
 
     board.select(1, 0).occupyBy(board.register(new ChessPiecesFactory.Rook(ChessSet.white)));
@@ -68,7 +68,7 @@ describe('Tactics: AlphaBeta', function() {
     expect(state.blackPieces[1].row).not.to.be.eql(2);
   });
 
-  it('should maximize score', function() {
+  it('should maximize score', function () {
     var board = tu.generateBasicGameState();
 
     board.select(1, 0).occupyBy(board.register(new ChessPiecesFactory.Pawn(ChessSet.white)));
@@ -81,7 +81,10 @@ describe('Tactics: AlphaBeta', function() {
 
     board.select(0, 0).occupyBy(board.register(new ChessPiecesFactory.Rook(ChessSet.black)));
 
-    var chessAi = new ChessAi({initialState: board});
+    var chessAi = new ChessAi({
+      strategy: 'alphabeta',
+      initialState: board
+    });
     var strMove = {
       source: tu.moveToStringNotation(tu.makeMove(3, 3)),
       target: tu.moveToStringNotation(tu.makeMove(4, 3))

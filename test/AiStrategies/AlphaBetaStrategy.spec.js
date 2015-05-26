@@ -43,8 +43,9 @@ describe('Alpha Beta Strategy', function () {
 
     var minMax = Strategy(childStateIterator, measurement, 2);
 
-    expect(minMax.findSolution(states).value).to.be.equal(-45);
-    expect(minMax.findSolution(states).action).to.be.equal(0);
+    var res = minMax.findSolution(states);
+    expect(res.value).to.be.equal(-45);
+    expect(res.action).to.be.equal(0);
   });
 
   it('should find best solution on complex tree', function () {
@@ -63,6 +64,15 @@ describe('Alpha Beta Strategy', function () {
 
     expect(minMax.findSolution(states).value).to.be.equal(68);
     expect(minMax.findSolution(states).action).to.be.equal(1);
+  });
+
+  it('should find solution on even tree', function () {
+    var states = fx.GameTreeEven;
+
+    var minMax = Strategy(childStateIterator, measurement, 5);
+
+    expect(minMax.findSolution(states).value).to.be.equal(0);
+    expect(minMax.findSolution(states).action).to.be.equal(0);
   });
 
 });

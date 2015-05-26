@@ -1,7 +1,7 @@
 var _ = require('lodash');
 var CHESS_CFG = require('../ChessConfig');
 var ChessBoardField = require('./ChessBoardField');
-var chessPieciesFactory = require('./../ChessPiecesFactory')();
+var chessPieciesFactory = require('./../ChessPiecesFactory');
 var ChessSet = require('../ChessSet');
 
 var CHESS_BOARD_ID = 0; //useful for debug
@@ -72,6 +72,8 @@ ChessBoardRepresentation.prototype = {
         return clonedField;
       }
     }, other);
+
+    other.setInControl = this.setInControl;
 
     return other;
   },
@@ -171,7 +173,7 @@ ChessBoardRepresentation.prototype = {
    */
   isCheckMate: function(chessSet) {
     var king = _.find(this.getPiecesForSet(chessSet), function(piece) {
-      return piece.name = 'king';
+      return piece.name == 'king';
     });
 
     if (!king) {
@@ -210,7 +212,7 @@ ChessBoardRepresentation.prototype = {
    */
   isCheck: function(chessSet) {
     var king = _.find(this.getPiecesForSet(chessSet), function(piece) {
-      return piece.name = 'king';
+      return piece.name == 'king';
     });
 
     var kingField = king.field.toSimpleField();

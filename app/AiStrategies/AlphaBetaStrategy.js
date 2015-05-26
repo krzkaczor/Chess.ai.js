@@ -44,7 +44,6 @@ module.exports = function (childStateIterator, measurement, MAX_DEPTH) {
       }
 
       best.value = beta;
-      return best;
     } else {
       while (it.hasNext()) {
         childState = it.next();
@@ -66,8 +65,12 @@ module.exports = function (childStateIterator, measurement, MAX_DEPTH) {
       }
 
       best.value = alpha;
-      return best;
     }
+    if (depth == 0 && best.action === undefined) {
+      throw Error("Lack of action!");
+    }
+
+    return best;
   };
 
   return {

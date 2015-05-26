@@ -2,7 +2,7 @@ var expect = require('chai').expect;
 var _ = require('lodash');
 var tu = require('../TestUtils');
 var ChessBoardRepresentation = require('../../app/Chessboard/ChessBoardRepresentation');
-var ChessPiecesFactory = require('../../app/ChessPiecesFactory')();
+var ChessPiecesFactory = require('../../app/ChessPiecesFactory');
 var ChessSet = require('../../app/ChessSet');
 
 describe('Pawn', function() {

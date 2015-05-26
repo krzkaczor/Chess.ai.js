@@ -2,7 +2,7 @@ var expect = require('chai').expect;
 var _ = require('lodash');
 var tu = require('./../TestUtils');
 var ChessBoardRepresentation = require('../../app/ChessBoard/ChessBoardRepresentation');
-var ChessPiecesFactory = require('../../app/ChessPiecesFactory')();
+var ChessPiecesFactory = require('../../app/ChessPiecesFactory');
 var ChessSet = require('../../app/ChessSet');
 var StatesIterator = require('../../app/StateGenerators/StatesIterator');
 
@@ -23,21 +23,25 @@ describe('State Iterator', function() {
 
 
     expect(blackStatesIt.hasNext()).to.be.true;
+    expect(blackStatesIt.hasNext()).to.be.true;
     var state = blackStatesIt.next();
     expect(state.state.toFenNotation()).to.be.equal("8/8/pp6/8/8/8/P7/8");
     expect(state.action).to.be.eql({source: tu.makeMove(6,0), target: tu.makeMove(5, 0)});
 
 
     expect(blackStatesIt.hasNext()).to.be.true;
+    expect(blackStatesIt.hasNext()).to.be.true;
     var state = blackStatesIt.next();
     expect(state.state.toFenNotation()).to.be.equal("8/8/1p6/p7/8/8/P7/8");
     expect(state.action).to.be.eql({source: tu.makeMove(6,0), target: tu.makeMove(4, 0)});
 
     expect(blackStatesIt.hasNext()).to.be.true;
+    expect(blackStatesIt.hasNext()).to.be.true;
     var state = blackStatesIt.next();
     expect(state.state.toFenNotation()).to.be.equal("8/p7/8/1p6/8/8/P7/8");
     expect(state.action).to.be.eql({source: tu.makeMove(5,1), target: tu.makeMove(4, 1)});
 
+    expect(blackStatesIt.hasNext()).to.be.false;
     expect(blackStatesIt.hasNext()).to.be.false;
   });
 });

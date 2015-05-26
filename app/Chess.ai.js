@@ -10,7 +10,7 @@ var WeightedMeasure = require('./ChessBoardMeasurements/WeightedMeasure');
 
 var defaultOptions = {
   set: 'b', //computer starts as black
-  strategy: 'minmax',
+  strategy: 'alphabeta',
   initialState: ChessBoardRepresentation.startingPopulation()
 };
 
@@ -18,6 +18,7 @@ var ChessAi = function(options) {
   options = _.extend(defaultOptions, options);
 
   this.aiSet = options.set == 'w'? ChessSet.white : ChessSet.black;
+  this.playerSet = this.aiSet.getEnemy();
 
   switch(options.strategy) {
     case 'random': this.aiStrategy = new RandomStrategy(); break;
@@ -31,7 +32,7 @@ var ChessAi = function(options) {
       var childStateIterator = StatesIterator;
       var measurement = WeightedMeasure(this.aiSet);
 
-      this.aiStrategy = AlphaBetaStrategy(childStateIterator, measurement, 6);
+      this.aiStrategy = AlphaBetaStrategy(childStateIterator, measurement, 5);
       break;
     default: throw new Error('Unsupported strategy'); break;
   }
@@ -50,6 +51,10 @@ var ChessAi = function(options) {
 ChessAi.prototype.isMoveValid = function(move) {
   move = moveWithStringNotationToMoveWithPosition(move);
   var isValid = this.board.select(move.source).getChessPiece().canMove(move.target);
+  if (isValid) {
+    var nextState = this.board.makeMove(move);
+    return !nextState.isCheck(this.playerSet);
+  }
   return isValid;
 };
 

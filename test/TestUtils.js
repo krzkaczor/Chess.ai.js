@@ -1,6 +1,6 @@
 var ChessSet = require('../app/ChessSet');
 var ChessBoardRepresentation = require('../app/Chessboard/ChessBoardRepresentation');
-var ChessPiecesFactory = require('../app/ChessPiecesFactory')();
+var ChessPiecesFactory = require('../app/ChessPiecesFactory');
 
 module.exports = {
   makeMove: function (row, col) {

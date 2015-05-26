@@ -28,6 +28,14 @@ var onDrop = function (source, target) {
 // for castling, en passant, pawn promotion
 var onSnapEnd = function() {
   board.position(chessAi.getGameState());
+
+  if (chessAi.board.isCheck(ChessSet.white)) {
+    console.log("White Check");
+  }
+
+  if (chessAi.board.isCheck(ChessSet.black)) {
+    console.log("Black Check");
+  }
 };
 
 
