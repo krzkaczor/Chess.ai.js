@@ -20,22 +20,34 @@ var pieceImportance = function (piece) {
 module.exports = function (player) {
   //manual curring...
   return function(state) {
-    if (state.isCheckMate(player)){
-      return -Number.MAX_VALUE;
-    }
-
-    if (state.isCheckMate(player.getEnemy())){
-      return Number.MAX_VALUE;
-    }
-
+    //refactor
+    var hasOwnKing = false;
     var myScore = state.getPiecesForSet(player).reduce(function (a, piece) {
+      if (piece.name == 'king') {
+        hasOwnKing = true;
+        return a;
+      }
 
       return a + pieceImportance(piece);
     },0);
 
+    if (!hasOwnKing) {
+      return Number.MIN_VALUE;
+    }
+    var hasEnemyKing = false;
+
     var enemyScore = state.getPiecesForSet(player.getEnemy()).reduce(function (a, piece) {
+      if (piece.name == 'king') {
+        hasEnemyKing = true;
+        return a;
+      }
+
       return a + pieceImportance(piece);
     }, 0);
+
+    if (!hasEnemyKing) {
+      return Number.MAX_VALUE;
+    }
 
     return myScore - enemyScore;
   };

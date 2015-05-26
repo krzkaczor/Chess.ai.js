@@ -16,9 +16,13 @@ module.exports = function (childStateIterator, measurement, MAX_DEPTH) {
 
     var it = childStateIterator(parentState);
     if (depth == MAX_DEPTH || !it.hasNext()) {
+      var m = measurement(parentState);
+      //console.log("\nROOT " + depth + " == " + MAX_DEPTH);
+      //console.log("state: " + parentState.toFenNotation());
+      //console.log("value: " + m);
       return {
         action: undefined,
-        value: measurement(parentState)
+        value: m
       };
     }
 
@@ -69,7 +73,10 @@ module.exports = function (childStateIterator, measurement, MAX_DEPTH) {
     if (depth == 0 && best.action === undefined) {
       throw Error("Lack of action!");
     }
-
+    //console.log("\n------------");
+    //console.log("DEPTH: " + depth);
+    //console.log("state: " + parentState.toFenNotation());
+    //console.log("value: " + best.value);
     return best;
   };
 

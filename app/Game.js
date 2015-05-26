@@ -11,10 +11,11 @@ var onDrop = function (source, target) {
   if (_.isEqual(source, target))
     return;
 
-  var move = {source: source, target: target};
+  var move = moveWithStringNotationToMoveWithPosition({source: source, target: target});
 
   if (chessAi.isMoveValid(move)) {
-    chessAi.makeMove(move);
+    chessAi.playerMove(move);
+    chessAi.aiMove(move);
   } else {
     return 'snapback';
   }
@@ -52,3 +53,18 @@ board.position(chessAi.getGameState());
 
 console.log("White chess pieces: ", chessAi.board.whitePieces.length);
 console.log("Black chess pieces: ", chessAi.board.blackPieces.length);
+
+
+var moveWithStringNotationToMoveWithPosition = function(move) {
+  return {
+    source : stringNotationToPosition(move.source),
+    target : stringNotationToPosition(move.target)
+  }
+};
+
+var stringNotationToPosition = function(stringNotation) {
+  return {
+    col: stringNotation.charCodeAt(0) - 'a'.charCodeAt(0),
+    row: parseInt(stringNotation[1] - 1)
+  }
+};

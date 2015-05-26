@@ -17,7 +17,11 @@ describe('Tactics: AlphaBeta', function () {
     board.select(2, 1).occupyBy(board.register(new ChessPiecesFactory.Pawn(ChessSet.black)));
     board.setInControl = ChessSet.black;
 
-    var chessAi = new ChessAi({initialState: board});
+    var chessAi = new ChessAi({
+      strategy: 'alphabeta',
+      depth: 3,
+      initialState: board
+    });
     chessAi.aiMove();
 
     var state = chessAi.board;
@@ -34,7 +38,11 @@ describe('Tactics: AlphaBeta', function () {
     board.select(2, 1).occupyBy(board.register(new ChessPiecesFactory.Pawn(ChessSet.black)));
     board.setInControl = ChessSet.black;
 
-    var chessAi = new ChessAi({initialState: board});
+    var chessAi = new ChessAi({
+      strategy: 'alphabeta',
+      depth: 3,
+      initialState: board
+    });
     chessAi.aiMove();
     var state = chessAi.board;
 
@@ -49,7 +57,11 @@ describe('Tactics: AlphaBeta', function () {
     board.select(2, 0).occupyBy(board.register(new ChessPiecesFactory.Rook(ChessSet.white)));
     board.select(3, 3).occupyBy(board.register(new ChessPiecesFactory.Pawn(ChessSet.black)));
 
-    var chessAi = new ChessAi({initialState: board});
+    var chessAi = new ChessAi({
+      strategy: 'alphabeta',
+      depth: 5,
+      initialState: board
+    });
     board.setInControl = ChessSet.black;
     chessAi.aiMove();
     var state = chessAi.board;
@@ -75,18 +87,19 @@ describe('Tactics: AlphaBeta', function () {
 
     var chessAi = new ChessAi({
       strategy: 'alphabeta',
-      initialState: board
+      initialState: board,
+      depth: 3
     });
 
-    chessAi.aiMove();
+    var aiMove = chessAi.aiMove();
     var state = chessAi.board;
     console.log("\n " + state.toFenNotation());
     expect(state.whitePieces.length).to.be.eql(7);
     expect(state.blackPieces.length).to.be.eql(2);
 
     chessAi.playerMove({
-      source: tu.moveToStringNotation(tu.makeMove(4, 3)),
-      target: tu.moveToStringNotation(tu.makeMove(5, 3))
+      source: tu.makeMove(4, 3),
+      target: tu.makeMove(5, 3)
     });
     chessAi.aiMove();
     state = chessAi.board;
@@ -123,7 +136,67 @@ describe('Tactics: AlphaBeta', function () {
 
     console.log("FEN: " + chessAi.board.toFenNotation());
 
-    expect(chessAi.board.select(7,5).chessPiece).to.be.instanceOf(ChessPiecesFactory.King);
+    expect(chessAi.board.select(7, 5).chessPiece).to.be.instanceOf(ChessPiecesFactory.King);
   });
+
+  it('should avoid checkmate alphabeta', function () {
+    var board = new ChessBoardRepresentation();
+
+    board.select(0, 0).occupyBy(board.register(new ChessPiecesFactory.King(ChessSet.white)));
+    board.select(7, 6).occupyBy(board.register(new ChessPiecesFactory.King(ChessSet.black)));
+    board.select(6, 5).occupyBy(board.register(new ChessPiecesFactory.Pawn(ChessSet.black)));
+    board.select(6, 7).occupyBy(board.register(new ChessPiecesFactory.Pawn(ChessSet.black)));
+
+    board.select(1, 6).occupyBy(board.register(new ChessPiecesFactory.Queen(ChessSet.white)));
+    board.select(0, 6).occupyBy(board.register(new ChessPiecesFactory.Rook(ChessSet.white)));
+    board.setInControl = ChessSet.black;
+
+    var chessAi = new ChessAi({
+      strategy: 'alphabeta',
+      depth: 5,
+      initialState: board
+    });
+
+    console.log("\nFEN: " + chessAi.board.toFenNotation());
+    expect(chessAi.board.isCheck(ChessSet.black)).to.be.true;
+
+    var aiMove = chessAi.aiMove();
+
+    console.log(aiMove);
+
+    console.log("FEN: " + chessAi.board.toFenNotation());
+
+    expect(chessAi.board.select(7, 5).chessPiece).to.be.instanceOf(ChessPiecesFactory.King);
+  });
+
+  //it('should not be retarded', function () {
+  //  var chessAi = new ChessAi({
+  //    strategy: 'alphabeta',
+  //    depth: 2
+  //  });
+  //
+  //  var aiMove;
+  //
+  //  chessAi.playerMove({source: tu.makeMove(1, 3), target: tu.makeMove(3, 3)});
+  //  aiMove = chessAi.aiMove();
+  //  expect(aiMove.action.source).to.be.eql(tu.makeMove(6, 0));
+  //
+  //  chessAi.playerMove({source: tu.makeMove(1, 2), target: tu.makeMove(2, 2)});
+  //  aiMove = chessAi.aiMove();
+  //  expect(aiMove.action.source).to.be.eql(tu.makeMove(5, 0));
+  //
+  //  chessAi.playerMove({source: tu.makeMove(1, 1), target: tu.makeMove(2, 1)});
+  //  aiMove = chessAi.aiMove();
+  //  expect(aiMove.action.source).to.be.eql(tu.makeMove(4, 0));
+  //
+  //  chessAi.playerMove({source: tu.makeMove(2, 1), target: tu.makeMove(3, 0)});
+  //  aiMove = chessAi.aiMove();
+  //  expect(aiMove.action).to.be.eql({source: tu.makeMove(7, 0), target: tu.makeMove(3, 0)});
+  //
+  //  chessAi.playerMove({source: tu.makeMove(1, 4), target: tu.makeMove(2, 4)});
+  //  console.log("FROM HERE");
+  //  aiMove = chessAi.aiMove();
+  //  expect(aiMove.action).to.not.be.eql({source: tu.makeMove(3, 0), target: tu.makeMove(3, 3)});
+  //});
 
 });

@@ -8,30 +8,28 @@ var StatesGenerator = require('./StateGenerators/StatesGenerator');
 var StatesIterator = require('./StateGenerators/StatesIterator');
 var WeightedMeasure = require('./ChessBoardMeasurements/WeightedMeasure');
 
-var defaultOptions = {
-  set: 'b', //computer starts as black
-  strategy: 'alphabeta',
-  depth: '2',
-  initialState: ChessBoardRepresentation.startingPopulation()
-};
-
 var ChessAi = function(options) {
+
+  var defaultOptions = {
+    set: 'b', //computer starts as black
+    strategy: 'alphabeta',
+    depth: '4',
+    initialState: ChessBoardRepresentation.startingPopulation()
+  };
+
   options = _.extend(defaultOptions, options);
 
   this.aiSet = options.set == 'w'? ChessSet.white : ChessSet.black;
   this.playerSet = this.aiSet.getEnemy();
+  var measurement = WeightedMeasure(this.aiSet);
 
   switch(options.strategy) {
     case 'minmax':
       var childStateGenerator = StatesGenerator();
-      var measurement = WeightedMeasure(this.aiSet);
-
       this.aiStrategy = MinMaxStrategy(childStateGenerator.generateChildrenStates, measurement, options.depth);
       break;
     case 'alphabeta':
       var childStateIterator = StatesIterator;
-      var measurement = WeightedMeasure(this.aiSet);
-
       this.aiStrategy = AlphaBetaStrategy(childStateIterator, measurement, options.depth);
       break;
     default: throw new Error('Unsupported strategy'); break;
@@ -44,12 +42,11 @@ var ChessAi = function(options) {
 
 /**
  * Checks if given move is valid
- * @param move.source {string} - string representation of source field ex. a5
- * @param move.target {string} - string representation of target field ex. a6
+ * @param move.source {object} - string representation of source field ex. a5
+ * @param move.target {object} - string representation of target field ex. a6
  * @returns {boolean}
  */
 ChessAi.prototype.isMoveValid = function(move) {
-  move = moveWithStringNotationToMoveWithPosition(move);
   var isValid = this.board.select(move.source).getChessPiece().canMove(move.target);
   if (isValid) {
     var nextState = this.board.makeMove(move);
@@ -61,8 +58,8 @@ ChessAi.prototype.isMoveValid = function(move) {
 /**
  * Perform player's move.
  * @param playerMove - description of user's move
- * @param playerMove.source {string} - string representation of source field ex. a5
- * @param playerMove.target {string} - string representation of target field ex. a6
+ * @param playerMove.source {object} - string representation of source field ex. a5
+ * @param playerMove.target {object} - string representation of target field ex. a6
  * @returns {boolean} - is move legal
  */
 ChessAi.prototype.playerMove = function(playerMove) {
@@ -72,7 +69,6 @@ ChessAi.prototype.playerMove = function(playerMove) {
   if (!this.isMoveValid(playerMove))
     return null;
 
-  playerMove = moveWithStringNotationToMoveWithPosition(playerMove);
   this.gameHistory.push(this.board);
   this.board = this.board.makeMove(playerMove);
 };
@@ -100,20 +96,5 @@ ChessAi.prototype.getGameState = function() {
   return this.board.toFenNotation();
 };
 
-var moveWithStringNotationToMoveWithPosition = function(move) {
-  return {
-    source : stringNotationToPosition(move.source),
-    target : stringNotationToPosition(move.target)
-  }
-};
-
-var stringNotationToPosition = function(stringNotation) {
-  return {
-    col: stringNotation.charCodeAt(0) - 'a'.charCodeAt(0),
-    row: parseInt(stringNotation[1] - 1)
-  }
-};
-
-var check
 
 module.exports = ChessAi;

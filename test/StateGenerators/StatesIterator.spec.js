@@ -44,4 +44,10 @@ describe('State Iterator', function() {
     expect(blackStatesIt.hasNext()).to.be.false;
     expect(blackStatesIt.hasNext()).to.be.false;
   });
+
+  //it('should generate all pos', function() {
+  //  var init = tu.generateBasicGameState();
+  //
+  //  initState.select(1, 0).occupyBy(initState.register(whitePawn));
+  //});
 });
