@@ -5,8 +5,8 @@ var HumanPlayer = require('./Players/HumanPlayer');
 
 var blackPlayer = new ChessAi({
   set: 'b',
-  strategy: 'random',
-  depth: '2'
+  strategy: 'alphabeta',
+  depth: '4'
 });
 
 blackPlayer.playerTurn = function(cb) {
@@ -34,7 +34,7 @@ var dispatcher = function () {
 
     setTimeout(function () {
       dispatcher();
-    }, 500);
+    }, 100);
   });
 
   board.position(blackPlayer.getGameState());
