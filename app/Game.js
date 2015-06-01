@@ -41,9 +41,6 @@ var dispatcher = function () {
   board.position(blackPlayer.getGameState());
 
   white = !white;
-
-  //detect cycle
-  //detectCycle();
 };
 
 // update the board position after the piece snap
