@@ -1,9 +1,9 @@
 var _ = require('lodash');
 
-module.exports = function() {
+module.exports = function (childStateGenerator) {
   return {
-    findMove: function(board, chessSetInControl) {
-      var possibleMoves = board.generateAllPossibleMovesForSet(chessSetInControl);
+    findSolution: function (initialState) {
+      var possibleMoves = childStateGenerator(initialState);
       return _.sample(possibleMoves);
     }
   };

@@ -1,7 +1,7 @@
 var _ = require('lodash');
 var CHESS_CFG = require('../ChessConfig');
 var ChessBoardField = require('./ChessBoardField');
-var chessPieciesFactory = require('./../ChessPiecesFactory')();
+var chessPieciesFactory = require('./../ChessPiecesFactory');
 var ChessSet = require('../ChessSet');
 
 var CHESS_BOARD_ID = 0; //useful for debug
@@ -53,6 +53,8 @@ ChessBoardRepresentation.startingPopulation = function () {
   boardObj.board[CHESS_CFG.BOARD_SIZE - 1][6].occupyBy(boardObj.register(new chessPieciesFactory.Knight(ChessSet.black)));
   boardObj.board[CHESS_CFG.BOARD_SIZE - 1][7].occupyBy(boardObj.register(new chessPieciesFactory.Rook(ChessSet.black)));
 
+  this.whitePieces = _.shuffle(this.whitePieces);
+  this.blackPieces = _.shuffle(this.blackPieces);
   return boardObj;
 };
 
@@ -72,6 +74,8 @@ ChessBoardRepresentation.prototype = {
         return clonedField;
       }
     }, other);
+
+    other.setInControl = this.setInControl;
 
     return other;
   },
@@ -171,7 +175,7 @@ ChessBoardRepresentation.prototype = {
    */
   isCheckMate: function(chessSet) {
     var king = _.find(this.getPiecesForSet(chessSet), function(piece) {
-      return piece.name = 'king';
+      return piece.name == 'king';
     });
 
     if (!king) {
@@ -210,13 +214,17 @@ ChessBoardRepresentation.prototype = {
    */
   isCheck: function(chessSet) {
     var king = _.find(this.getPiecesForSet(chessSet), function(piece) {
-      return piece.name = 'king';
+      return piece.name == 'king';
     });
+
+    if (!king) {
+      return false;
+    }
 
     var kingField = king.field.toSimpleField();
 
     var fieldsInRangeOfEnemy = _.flatten(this.getPiecesForSet(chessSet.getEnemy()).map(function(piece) {
-      return piece.generateAllPossibleMoves();
+      return piece._generateAllPossibleMoves(); //use method without check checking
     }));
 
     return !!_.find(fieldsInRangeOfEnemy, function(fieldInRange) {

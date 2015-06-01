@@ -13,6 +13,10 @@ module.exports = function (childStateGenerator, measurement, MAX_DEPTH) {
   var minmax = function (parentState, depth) {
     var childStatesAndActions = childStateGenerator(parentState);
     if (depth == MAX_DEPTH || childStatesAndActions.length == 0) {
+      var m = measurement(parentState);
+      //console.log("\nROOT");
+      //console.log("state: " + parentState.toFenNotation());
+      //console.log("measure: " + m);
       return {
         value: measurement(parentState),
         action: undefined
@@ -30,9 +34,17 @@ module.exports = function (childStateGenerator, measurement, MAX_DEPTH) {
     });
 
     //founds extremum list and returns valueAction object
-    return extremeFunction(resultStates, function (valueAndAction) {
+
+    var res = extremeFunction(resultStates, function (valueAndAction) {
       return valueAndAction.value;
     });
+
+    //console.log("\n -------------------------------");
+    //console.log("DEPTH: " + depth);
+    //console.log("value: " + res.value);
+    //console.log("action: " + res.action);
+
+    return res;
   };
 
   return {

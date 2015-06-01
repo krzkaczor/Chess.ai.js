@@ -1,0 +1,124 @@
+{
+  "id": 0,
+  "children": [
+    {
+      "id": 1,
+      "children": [
+        {
+          "id": 2,
+          "children": [
+            {
+              "id": 3,
+              "children": [
+                {
+                  "id": 4,
+                  "quality": 0
+                },
+                {
+                  "id": 5,
+                  "quality": 1
+                }
+              ]
+            },
+            {
+              "id": 6,
+              "children": [
+                {
+                  "id": 7,
+                  "quality": 0
+                },
+                {
+                  "id": 8,
+                  "quality": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 9,
+          "children": [
+            {
+              "id": 10,
+              "children": [
+                {
+                  "id": 11,
+                  "quality": 0
+                },
+                {
+                  "id": 12,
+                  "quality": 0
+                }
+              ]
+            },
+            {
+              "id": 13,
+              "children": [
+                {
+                  "id": 14,
+                  "quality": 0
+                },
+                {
+                  "id": 15,
+                  "quality": 0
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "children": [
+                {
+                  "quality": 0
+                },
+                {
+                  "quality": 0
+                }
+              ]
+            },
+            {
+              "children": [
+                {
+                  "quality": 1
+                },
+                {
+                  "quality": 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "children": [
+            {
+              "children": [
+                {
+                  "quality": -1
+                },
+                {
+                  "quality": 0
+                }
+              ]
+            },
+            {
+              "children": [
+                {
+                  "quality": 0
+                },
+                {
+                  "quality": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

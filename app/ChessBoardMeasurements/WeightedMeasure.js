@@ -10,6 +10,8 @@ var pieceImportance = function (piece) {
       return 4;
     case 'queen' :
       return 9;
+    case 'king' :
+      return 10;
     default :
       throw new Error('Unknown chess piece');
   }

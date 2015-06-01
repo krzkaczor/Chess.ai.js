@@ -8,8 +8,8 @@ module.exports = function (state) {
   var indexToProcess = 0;
   //todo:refactor
   var generateMore = function() {
-    if (indexToProcess < arrayToProcess.length) {
-      var newMoves = false;
+    var newMoves = false;
+    while(indexToProcess < arrayToProcess.length && !newMoves) {
       arrayToProcess[indexToProcess].generateAllPossibleMoves().forEach(function(target) {
         var chessPiece = arrayToProcess[indexToProcess];
         var move = {
@@ -20,9 +20,8 @@ module.exports = function (state) {
         newMoves = true;
       });
       indexToProcess++;
-      return newMoves;
     }
-    return false;
+    return newMoves;
   };
 
   return {

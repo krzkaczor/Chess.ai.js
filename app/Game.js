@@ -1,46 +1,65 @@
 var _ = require('lodash');
 var ChessAi = require('./Chess.ai');
-var WeightedMeasure = require('./ChessBoardMeasurements/WeightedMeasure');
 var ChessSet = require('./ChessSet');
+var HumanPlayer = require('./Players/HumanPlayer');
 
-var chessAi = new ChessAi();
+var blackPlayer = new ChessAi({
+  set: 'b',
+  strategy: 'alphabeta',
+  depth: '4'
+});
 
-global.chessAi = chessAi;
+blackPlayer.playerTurn = function(cb) {
+  cb(this.aiMove());
+};
 
-var onDrop = function (source, target) {
-  if (_.isEqual(source, target))
-    return;
+var chessAi = blackPlayer;
 
-  var move = {source: source, target: target};
+var whitePlayer = new HumanPlayer(ChessSet.white, chessAi);
 
-  if (chessAi.isMoveValid(move)) {
-    chessAi.makeMove(move);
+var white = true;
+var dispatcher = function () {
+  var moving, waiting;
+  if (white) {
+    moving = whitePlayer;
+    waiting = blackPlayer;
   } else {
-    return 'snapback';
+    moving = blackPlayer;
+    waiting = whitePlayer;
   }
-  console.log("White chess pieces: ", chessAi.board.whitePieces.length);
-  console.log("SCORE FOR WHITE: " + WeightedMeasure(ChessSet.white)(chessAi.board));
-  console.log("Black chess pieces: ", chessAi.board.blackPieces.length);
-  console.log("SCORE FOR BLACK: " + WeightedMeasure(ChessSet.black)(chessAi.board));
+
+  moving.playerTurn(function(move) {
+    var moveAction = move.action;
+    waiting.playerMove(moveAction);
+
+    setTimeout(function () {
+      dispatcher();
+    }, 100);
+  });
+
+  board.position(blackPlayer.getGameState());
+
+  white = !white;
+
+  //detect cycle
+  //detectCycle();
 };
 
 // update the board position after the piece snap
 // for castling, en passant, pawn promotion
-var onSnapEnd = function() {
+var onSnapEnd = function () {
   board.position(chessAi.getGameState());
 };
 
 
 var boardCfg = {
   draggable: true,
-  onDrop: onDrop,
+  onDrop: whitePlayer.onDrop.bind(whitePlayer),
   onSnapEnd: onSnapEnd
-
 };
 
 var board = new ChessBoard('chess-board', boardCfg);
 
 board.position(chessAi.getGameState());
 
-console.log("White chess pieces: ", chessAi.board.whitePieces.length);
-console.log("Black chess pieces: ", chessAi.board.blackPieces.length);
+dispatcher();

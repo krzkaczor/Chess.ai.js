@@ -2,7 +2,7 @@ var expect = require('chai').expect;
 var _ = require('lodash');
 var tu = require('./TestUtils');
 var ChessBoardRepresentation = require('../app/Chessboard/ChessBoardRepresentation');
-var ChessPiecesFactory = require('../app/ChessPiecesFactory')();
+var ChessPiecesFactory = require('../app/ChessPiecesFactory');
 var ChessSet = require('../app/ChessSet');
 
 describe('ChessBoardRepresentation', function() {
@@ -26,6 +26,24 @@ describe('ChessBoardRepresentation', function() {
     expect(clonedBoard.blackPieces.length).to.be.equal(16);
 
     expect(clonedBoard.toFenNotation()).to.be.equal("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+    //assert.fail("check constructors and names");
+
+    expect(clonedBoard.select(0,0).chessPiece).to.be.an.instanceof(ChessPiecesFactory.Rook);
+    expect(clonedBoard.select(0,1).chessPiece).to.be.an.instanceof(ChessPiecesFactory.Knight);
+    expect(clonedBoard.select(0,2).chessPiece).to.be.an.instanceof(ChessPiecesFactory.Bishop);
+    expect(clonedBoard.select(0,3).chessPiece).to.be.an.instanceof(ChessPiecesFactory.Queen);
+    expect(clonedBoard.select(0,4).chessPiece).to.be.an.instanceof(ChessPiecesFactory.King);
+    expect(clonedBoard.select(0,5).chessPiece).to.be.an.instanceof(ChessPiecesFactory.Bishop);
+    expect(clonedBoard.select(0,6).chessPiece).to.be.an.instanceof(ChessPiecesFactory.Knight);
+    expect(clonedBoard.select(0,7).chessPiece).to.be.an.instanceof(ChessPiecesFactory.Rook);
+
+    /*
+     module.exports.Bishop {set: ChessSet, field: ChessBoardField, name: "king", fen: "b", constructor: function…}
+     field: ChessBoardField
+     name: "king"
+     set: ChessSet
+     __proto__: module.exports.Bishop
+     */
   });
 
   it('should be immutable', function() {
