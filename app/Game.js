@@ -19,6 +19,7 @@ var whitePlayer = new HumanPlayer(ChessSet.white, chessAi);
 
 var white = true;
 var dispatcher = function () {
+  printStatus();
   var moving, waiting;
   if (white) {
     moving = whitePlayer;
@@ -51,6 +52,27 @@ var onSnapEnd = function () {
   board.position(chessAi.getGameState());
 };
 
+var printStatus = function() {
+  console.log("=======================");
+  console.log("Turn: " + (chessAi.board.setInControl.isWhite()? 'white' : 'black'));
+
+  if (chessAi.board.isCheck(ChessSet.white)) {
+    console.log('WHITE CHECKED');
+  }
+  if (chessAi.board.isCheckMate(ChessSet.white)) {
+    console.log('WHITE CHECK MATED');
+  }
+
+  if (chessAi.board.isCheck(ChessSet.black)) {
+    console.log('BLACK CHECKED');
+  }
+  if (chessAi.board.isCheckMate(ChessSet.black)) {
+    console.log('BLACK CHECK MATED');
+  }
+
+  console.log("White pieces: " + chessAi.board.getPiecesForSet(ChessSet.white).length );
+  console.log("Black pieces: " + chessAi.board.getPiecesForSet(ChessSet.black).length );
+};
 
 var boardCfg = {
   draggable: true,
