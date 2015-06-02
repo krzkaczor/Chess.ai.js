@@ -41,11 +41,9 @@ ChessPiece.prototype.generateAllPossibleMoves = function () {
   var moves = this._generateAllPossibleMoves();
   var field = this.field;
 
-  return moves;
-  //checking if move is not cousing check is not obligatory. Avoiding it will make whole AI faster.
-  //return moves.filter(function(move) {
-  //  return !field.board.makeMove({source: field.toSimpleField(), target: move}).isCheck(field.board.setInControl);
-  //})
+  return moves.filter(function(move) {
+    return !field.board.makeMove({source: field.toSimpleField(), target: move}).isCheck(field.board.setInControl);
+  })
 };
 
 var Pawn = function (chessSet, field) {

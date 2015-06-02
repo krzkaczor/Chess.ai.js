@@ -1,6 +1,6 @@
 Chess.ai.js
 ===========
-`Chess.ai.js` is AI crafted for playing chess. It uses minmax and alphabeta algorithms and can be easily tweaked to play other games (ex. checkers etc.).
+`Chess.ai.js` is AI crafted for playing chess. It uses minmax and alphabeta algorithms and can be easily tweaked to play other games (ex. checkers).
 
 Example
 -------
@@ -20,6 +20,7 @@ To run tests:
 
 Todo
 ----
+- example should use `webworkers`
 - missing chess game elements (castling, pawn promotion etc.)
 - more complicated game state measure
 - implement other AI algorithms
