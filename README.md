@@ -20,5 +20,6 @@ To run tests:
 
 Todo
 ----
+- missing chess game elements (castling, pawn promotion etc.)
 - more complicated game state measure
 - implement other AI algorithms
