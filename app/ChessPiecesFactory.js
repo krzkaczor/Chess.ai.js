@@ -41,9 +41,11 @@ ChessPiece.prototype.generateAllPossibleMoves = function () {
   var moves = this._generateAllPossibleMoves();
   var field = this.field;
 
-  return moves.filter(function(move) {
-    return !field.board.makeMove({source: field.toSimpleField(), target: move}).isCheck(field.board.setInControl);
-  })
+  return moves;
+  //checking if move is not cousing check is not obligatory. Avoiding it will make whole AI faster.
+  //return moves.filter(function(move) {
+  //  return !field.board.makeMove({source: field.toSimpleField(), target: move}).isCheck(field.board.setInControl);
+  //})
 };
 
 var Pawn = function (chessSet, field) {
@@ -57,7 +59,6 @@ Pawn.prototype._generateAllPossibleMoves = function () {
   var isWhite = this.set.isWhite();
   var notTouched = (isWhite && this.field.row == 1) || (!isWhite && this.field.row == CHESS_CFG.BOARD_SIZE - 2);
 
-  //@todo create set prototype
   var isEnemySet = function (set) {
     return set != this.set;
   }.bind(this);
@@ -77,7 +78,7 @@ Pawn.prototype._generateAllPossibleMoves = function () {
       possibleMoves.push(aheadAheadField);
     }
 
-    //3. Beat enemy standing @todo
+    //3. Beat enemy
     var enemyFieldLeft = fieldAhead.selectLeft();
     if (enemyFieldLeft && !enemyFieldLeft.isEmpty() && isEnemySet(enemyFieldLeft.chessPiece.set)) {
       possibleMoves.push(enemyFieldLeft);
@@ -88,7 +89,7 @@ Pawn.prototype._generateAllPossibleMoves = function () {
     }
   }
 
-  //4. @todo it is not that important for now en route (?)
+  //4. @todo: en route
 
   return possibleMoves;
 };

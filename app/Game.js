@@ -6,7 +6,7 @@ var HumanPlayer = require('./Players/HumanPlayer');
 var blackPlayer = new ChessAi({
   set: 'b',
   strategy: 'alphabeta',
-  depth: '4'
+  depth: '4' //max reasonable depth is 5
 });
 
 blackPlayer.playerTurn = function(cb) {

@@ -67,7 +67,7 @@ describe('King', function() {
 
     var possibleMoves = king.generateAllPossibleMoves();
 
-    expect(possibleMoves.length).to.be.equal(6);
+    expect(possibleMoves.length).to.be.equal(8);
 
     var expectedMoves = [
       tu.makeMove(5, 3),
@@ -75,7 +75,9 @@ describe('King', function() {
       tu.makeMove(5, 5),
       tu.makeMove(3, 3),
       tu.makeMove(3, 4),
-      tu.makeMove(3, 5)
+      tu.makeMove(3, 5),
+      tu.makeMove(4, 3),
+      tu.makeMove(4, 5)
     ];
 
     expect(tu.checkMoves(possibleMoves, expectedMoves)).to.be.true;
