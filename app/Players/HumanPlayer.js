@@ -12,6 +12,10 @@ HumanPlayer.prototype.playerTurn = function(callback) {
   this.callback = callback;
 };
 
+HumanPlayer.prototype.playerMove = function(move) {
+  //do nothing after enemy move
+};
+
 HumanPlayer.prototype.onDrop = function(source, target) {
   if (!this.callback) {
     return;

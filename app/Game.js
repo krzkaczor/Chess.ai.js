@@ -2,20 +2,16 @@ var _ = require('lodash');
 var ChessAi = require('./Chess.ai');
 var ChessSet = require('./ChessSet');
 var HumanPlayer = require('./Players/HumanPlayer');
+var ComputerPlayer = require('./Players/ComputerPlayer');
 
-var blackPlayer = new ChessAi({
+var chessAi = new ChessAi({
   set: 'b',
   strategy: 'alphabeta',
   depth: '4' //max reasonable depth is 5
 });
 
-blackPlayer.playerTurn = function(cb) {
-  cb(this.aiMove());
-};
-
-var chessAi = blackPlayer;
-
 var whitePlayer = new HumanPlayer(ChessSet.white, chessAi);
+var blackPlayer = new ComputerPlayer(ChessSet.black, chessAi);
 
 var white = true;
 var dispatcher = function () {
@@ -38,7 +34,7 @@ var dispatcher = function () {
     }, 100);
   });
 
-  board.position(blackPlayer.getGameState());
+  board.position(chessAi.getGameState());
 
   white = !white;
 };

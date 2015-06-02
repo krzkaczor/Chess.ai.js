@@ -14,6 +14,8 @@ Player.prototype.playerTurn = function (callback) {
  * Notifies about enemy move
  * @param move
  */
-Player.prototype.playerMove = function(move) {};
+Player.prototype.playerMove = function() {
+  throw new Error("Unimplemented");
+};
 
 module.exports = Player;
