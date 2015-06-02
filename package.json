@@ -1,13 +1,13 @@
 {
   "name": "Chess.ai.js",
   "version": "0.0.1",
-  "description": "",
+  "description": "Artificial intelligence for chess",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/.bin/jasmine-node tests"
+    "test": "./node_modules/.bin/jasmine-node test"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Krzysztof Kaczor",
+  "license": "MIT",
   "devDependencies": {
     "grunt": "^0.4.5",
     "mocha": "^2.2.4",
