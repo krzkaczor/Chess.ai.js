@@ -25,7 +25,6 @@ To run tests:
 
 Todo
 ----
-- example should use `webworkers`
 - missing chess game elements (castling, pawn promotion etc.)
 - more complicated game state measure
 - implement other AI algorithms
