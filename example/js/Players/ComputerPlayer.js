@@ -1,20 +1,28 @@
 var _ = require('lodash');
-var Player = require('./Player');
-var ChessAi = require('../../../app/Chess.ai');
+var work = require('webworkify');
+var computerPlayerWorker = work(require('./ComputerPlayerWorker.js'));
 
+var pendingCallback;
+computerPlayerWorker.onmessage = function(message){
+  pendingCallback(message.data);
+};
+
+var Player = require('./Player');
 var ComputerPlayer = function(set, config) {
-  this.chessAi = new ChessAi(config);
+  computerPlayerWorker.postMessage({type: 'init', value: config});
+
   Player.apply(this, set);
 };
 
 ComputerPlayer.prototype = new Player();
 
 ComputerPlayer.prototype.playerTurn = function(callback) {
-  callback(this.chessAi.aiMove());
+  computerPlayerWorker.postMessage({type: 'ai-move'});
+  pendingCallback = callback;
 };
 
 ComputerPlayer.prototype.playerMove = function(move) {
-  this.chessAi.playerMove(move);
+  computerPlayerWorker.postMessage({type: 'player-move', value: move});
 };
 
 module.exports = ComputerPlayer;

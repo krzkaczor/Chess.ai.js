@@ -91,7 +91,7 @@ module.exports = function (childStateIterator, measurement, MAX_DEPTH) {
     }
   }
 };
-},{"lodash":17}],2:[function(require,module,exports){
+},{"lodash":18}],2:[function(require,module,exports){
 var _ = require('lodash');
 
 /**
@@ -147,7 +147,7 @@ module.exports = function (childStateGenerator, measurement, MAX_DEPTH) {
     }
   }
 };
-},{"lodash":17}],3:[function(require,module,exports){
+},{"lodash":18}],3:[function(require,module,exports){
 var _ = require('lodash');
 
 module.exports = function (childStateGenerator) {
@@ -158,7 +158,7 @@ module.exports = function (childStateGenerator) {
     }
   };
 };
-},{"lodash":17}],4:[function(require,module,exports){
+},{"lodash":18}],4:[function(require,module,exports){
 var _ = require('lodash');
 var ChessBoardRepresentation = require('./ChessBoard/ChessBoardRepresentation');
 var ChessSet = require('./ChessSet');
@@ -263,7 +263,7 @@ ChessAi.prototype.getGameState = function() {
 
 
 module.exports = ChessAi;
-},{"./AiStrategies/AlphaBetaStrategy":1,"./AiStrategies/MinMaxStrategy":2,"./AiStrategies/RandomStrategy":3,"./ChessBoard/ChessBoardRepresentation":6,"./ChessBoardMeasurements/WeightedMeasure":7,"./ChessSet":11,"./StateGenerators/StatesGenerator":12,"./StateGenerators/StatesIterator":13,"lodash":17}],5:[function(require,module,exports){
+},{"./AiStrategies/AlphaBetaStrategy":1,"./AiStrategies/MinMaxStrategy":2,"./AiStrategies/RandomStrategy":3,"./ChessBoard/ChessBoardRepresentation":6,"./ChessBoardMeasurements/WeightedMeasure":7,"./ChessSet":11,"./StateGenerators/StatesGenerator":12,"./StateGenerators/StatesIterator":13,"lodash":18}],5:[function(require,module,exports){
 var _ = require('lodash');
 
 var ChessBoardField = function (board, row, col, chessPiece) {
@@ -364,7 +364,7 @@ ChessBoardField.prototype = {
 };
 
 module.exports = ChessBoardField;
-},{"lodash":17}],6:[function(require,module,exports){
+},{"lodash":18}],6:[function(require,module,exports){
 var _ = require('lodash');
 var CHESS_CFG = require('../ChessConfig');
 var ChessBoardField = require('./ChessBoardField');
@@ -603,7 +603,7 @@ ChessBoardRepresentation.prototype = {
 };
 
 module.exports = ChessBoardRepresentation;
-},{"../ChessConfig":8,"../ChessSet":11,"./../ChessPiecesFactory":10,"./ChessBoardField":5,"lodash":17}],7:[function(require,module,exports){
+},{"../ChessConfig":8,"../ChessSet":11,"./../ChessPiecesFactory":10,"./ChessBoardField":5,"lodash":18}],7:[function(require,module,exports){
 var pieceImportance = function (piece) {
   switch (piece.name) {
     case 'pawn' :
@@ -914,7 +914,7 @@ module.exports = {
   Queen: Queen,
   King: King
 };
-},{"./ChessConfig":8,"lodash":17}],11:[function(require,module,exports){
+},{"./ChessConfig":8,"lodash":18}],11:[function(require,module,exports){
 var ChessSet = function(chessSet) {
   if (chessSet != 'w' && chessSet != 'b') {
     throw new Error('Illegal chess set');
@@ -988,7 +988,7 @@ module.exports = function () {
     }
   }
 };
-},{"lodash":17}],13:[function(require,module,exports){
+},{"lodash":18}],13:[function(require,module,exports){
 var _ = require("lodash");
 
 module.exports = function (state) {
@@ -1030,28 +1030,64 @@ module.exports = function (state) {
     }
   };
 };
-},{"lodash":17}],14:[function(require,module,exports){
+},{"lodash":18}],14:[function(require,module,exports){
 var _ = require('lodash');
-var Player = require('./Player');
-var ChessAi = require('../../../app/Chess.ai');
+var work = require('webworkify');
+var computerPlayerWorker = work(require('./ComputerPlayerWorker.js'));
 
+var pendingCallback;
+computerPlayerWorker.onmessage = function(message){
+  pendingCallback(message.data);
+};
+
+var Player = require('./Player');
 var ComputerPlayer = function(set, config) {
-  this.chessAi = new ChessAi(config);
+  computerPlayerWorker.postMessage({type: 'init', value: config});
+
   Player.apply(this, set);
 };
 
 ComputerPlayer.prototype = new Player();
 
 ComputerPlayer.prototype.playerTurn = function(callback) {
-  callback(this.chessAi.aiMove());
+  computerPlayerWorker.postMessage({type: 'ai-move'});
+  pendingCallback = callback;
 };
 
 ComputerPlayer.prototype.playerMove = function(move) {
-  this.chessAi.playerMove(move);
+  computerPlayerWorker.postMessage({type: 'player-move', value: move});
 };
 
 module.exports = ComputerPlayer;
-},{"../../../app/Chess.ai":4,"./Player":16,"lodash":17}],15:[function(require,module,exports){
+},{"./ComputerPlayerWorker.js":15,"./Player":17,"lodash":18,"webworkify":19}],15:[function(require,module,exports){
+var ChessAi = require('../../../app/Chess.ai');
+
+var chessAi;
+
+var init = function(config) {
+  chessAi = new ChessAi(config);
+};
+
+var playerMove = function(move) {
+  chessAi.playerMove(move);
+};
+
+var aiMove = function() {
+  var move = chessAi.aiMove();
+  self.postMessage(move);
+};
+
+self.onmessage = function(message) {
+  console.log(message);
+
+  switch(message.data.type) {
+    case 'init' : init(message.data.value); break;
+    case 'player-move' : playerMove(message.data.value); break;
+    case 'ai-move' : aiMove(message.data.value); break;
+  }
+
+};
+},{"../../../app/Chess.ai":4}],16:[function(require,module,exports){
 var _ = require('lodash');
 var Player = require('./Player');
 
@@ -1105,7 +1141,7 @@ var stringNotationToPosition = function (stringNotation) {
 
 
 module.exports = HumanPlayer;
-},{"./Player":16,"lodash":17}],16:[function(require,module,exports){
+},{"./Player":17,"lodash":18}],17:[function(require,module,exports){
 var Player = function (set) {
   this.set = set;
 };
@@ -1127,7 +1163,7 @@ Player.prototype.playerMove = function() {
 };
 
 module.exports = Player;
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 (function (global){
 /**
  * @license
@@ -13333,7 +13369,64 @@ module.exports = Player;
 }.call(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
+var bundleFn = arguments[3];
+var sources = arguments[4];
+var cache = arguments[5];
+
+var stringify = JSON.stringify;
+
+module.exports = function (fn) {
+    var keys = [];
+    var wkey;
+    var cacheKeys = Object.keys(cache);
+    
+    for (var i = 0, l = cacheKeys.length; i < l; i++) {
+        var key = cacheKeys[i];
+        if (cache[key].exports === fn) {
+            wkey = key;
+            break;
+        }
+    }
+    
+    if (!wkey) {
+        wkey = Math.floor(Math.pow(16, 8) * Math.random()).toString(16);
+        var wcache = {};
+        for (var i = 0, l = cacheKeys.length; i < l; i++) {
+            var key = cacheKeys[i];
+            wcache[key] = key;
+        }
+        sources[wkey] = [
+            Function(['require','module','exports'], '(' + fn + ')(self)'),
+            wcache
+        ];
+    }
+    var skey = Math.floor(Math.pow(16, 8) * Math.random()).toString(16);
+    
+    var scache = {}; scache[wkey] = wkey;
+    sources[skey] = [
+        Function(['require'],'require(' + stringify(wkey) + ')(self)'),
+        scache
+    ];
+    
+    var src = '(' + bundleFn + ')({'
+        + Object.keys(sources).map(function (key) {
+            return stringify(key) + ':['
+                + sources[key][0]
+                + ',' + stringify(sources[key][1]) + ']'
+            ;
+        }).join(',')
+        + '},{},[' + stringify(skey) + '])'
+    ;
+    
+    var URL = window.URL || window.webkitURL || window.mozURL || window.msURL;
+    
+    return new Worker(URL.createObjectURL(
+        new Blob([src], { type: 'text/javascript' })
+    ));
+};
+
+},{}],20:[function(require,module,exports){
 var _ = require('lodash');
 var ChessGame = require('./../../app/ChessGame');
 var ChessSet = require('./../../app/ChessSet');
@@ -13418,4 +13511,4 @@ var board = new ChessBoard('chess-board', boardCfg);
 board.position(chessGame.getGameState());
 
 dispatcher();
-},{"./../../app/ChessGame":9,"./../../app/ChessSet":11,"./Players/ComputerPlayer":14,"./Players/HumanPlayer":15,"lodash":17}]},{},[18]);
+},{"./../../app/ChessGame":9,"./../../app/ChessSet":11,"./Players/ComputerPlayer":14,"./Players/HumanPlayer":16,"lodash":18}]},{},[20]);
