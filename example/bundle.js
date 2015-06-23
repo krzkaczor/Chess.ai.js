@@ -91,7 +91,7 @@ module.exports = function (childStateIterator, measurement, MAX_DEPTH) {
     }
   }
 };
-},{"lodash":16}],2:[function(require,module,exports){
+},{"lodash":18}],2:[function(require,module,exports){
 var _ = require('lodash');
 
 /**
@@ -147,7 +147,7 @@ module.exports = function (childStateGenerator, measurement, MAX_DEPTH) {
     }
   }
 };
-},{"lodash":16}],3:[function(require,module,exports){
+},{"lodash":18}],3:[function(require,module,exports){
 var _ = require('lodash');
 
 module.exports = function (childStateGenerator) {
@@ -158,7 +158,7 @@ module.exports = function (childStateGenerator) {
     }
   };
 };
-},{"lodash":16}],4:[function(require,module,exports){
+},{"lodash":18}],4:[function(require,module,exports){
 var _ = require('lodash');
 var ChessBoardRepresentation = require('./ChessBoard/ChessBoardRepresentation');
 var ChessSet = require('./ChessSet');
@@ -263,7 +263,7 @@ ChessAi.prototype.getGameState = function() {
 
 
 module.exports = ChessAi;
-},{"./AiStrategies/AlphaBetaStrategy":1,"./AiStrategies/MinMaxStrategy":2,"./AiStrategies/RandomStrategy":3,"./ChessBoard/ChessBoardRepresentation":6,"./ChessBoardMeasurements/WeightedMeasure":7,"./ChessSet":10,"./StateGenerators/StatesGenerator":14,"./StateGenerators/StatesIterator":15,"lodash":16}],5:[function(require,module,exports){
+},{"./AiStrategies/AlphaBetaStrategy":1,"./AiStrategies/MinMaxStrategy":2,"./AiStrategies/RandomStrategy":3,"./ChessBoard/ChessBoardRepresentation":6,"./ChessBoardMeasurements/WeightedMeasure":7,"./ChessSet":11,"./StateGenerators/StatesGenerator":12,"./StateGenerators/StatesIterator":13,"lodash":18}],5:[function(require,module,exports){
 var _ = require('lodash');
 
 var ChessBoardField = function (board, row, col, chessPiece) {
@@ -364,7 +364,7 @@ ChessBoardField.prototype = {
 };
 
 module.exports = ChessBoardField;
-},{"lodash":16}],6:[function(require,module,exports){
+},{"lodash":18}],6:[function(require,module,exports){
 var _ = require('lodash');
 var CHESS_CFG = require('../ChessConfig');
 var ChessBoardField = require('./ChessBoardField');
@@ -603,7 +603,7 @@ ChessBoardRepresentation.prototype = {
 };
 
 module.exports = ChessBoardRepresentation;
-},{"../ChessConfig":8,"../ChessSet":10,"./../ChessPiecesFactory":9,"./ChessBoardField":5,"lodash":16}],7:[function(require,module,exports){
+},{"../ChessConfig":8,"../ChessSet":11,"./../ChessPiecesFactory":10,"./ChessBoardField":5,"lodash":18}],7:[function(require,module,exports){
 var pieceImportance = function (piece) {
   switch (piece.name) {
     case 'pawn' :
@@ -666,6 +666,38 @@ var config = {
 module.exports = config;
 
 },{}],9:[function(require,module,exports){
+var ChessBoardRepresentation = require('./ChessBoard/ChessBoardRepresentation');
+
+var ChessGame = function() {
+  this.board = ChessBoardRepresentation.startingPopulation();
+};
+
+ChessGame.prototype =  {
+  isMoveValid: function(move) {
+    var selectedPiece = this.board.select(move.source).getChessPiece();
+    var isValid = selectedPiece.canMove(move.target);
+
+    if (isValid) {
+      var nextState = this.board.makeMove(move);
+      return !nextState.isCheck(selectedPiece.set);
+    }
+    return isValid;
+  },
+
+  registerMove: function (move) {
+    if (!this.isMoveValid(move))
+      return null;
+
+    this.board = this.board.makeMove(move);
+  },
+
+  getGameState: function() {
+    return this.board.toFenNotation();
+  }
+};
+
+module.exports = ChessGame;
+},{"./ChessBoard/ChessBoardRepresentation":6}],10:[function(require,module,exports){
 var CHESS_CFG = require('./ChessConfig');
 var _ = require('lodash');
 
@@ -882,7 +914,7 @@ module.exports = {
   Queen: Queen,
   King: King
 };
-},{"./ChessConfig":8,"lodash":16}],10:[function(require,module,exports){
+},{"./ChessConfig":8,"lodash":18}],11:[function(require,module,exports){
 var ChessSet = function(chessSet) {
   if (chessSet != 'w' && chessSet != 'b') {
     throw new Error('Illegal chess set');
@@ -929,103 +961,7 @@ var sets = {
 
 
 module.exports = sets;
-},{}],11:[function(require,module,exports){
-var _ = require('lodash');
-var Player = require('./Player');
-
-var ComputerPlayer = function(set, chessAi) {
-  this.chessAi = chessAi;
-  Player.apply(this, set);
-};
-
-ComputerPlayer.prototype = new Player();
-
-ComputerPlayer.prototype.playerTurn = function(callback) {
-  callback(this.chessAi.aiMove());
-};
-
-ComputerPlayer.prototype.playerMove = function(move) {
-  this.chessAi.playerMove(move);
-};
-
-module.exports = ComputerPlayer;
-},{"./Player":13,"lodash":16}],12:[function(require,module,exports){
-var _ = require('lodash');
-var Player = require('./Player');
-
-var HumanPlayer = function(set, chessAi) {
-  this.chessAi = chessAi;
-  Player.apply(this, set);
-};
-
-HumanPlayer.prototype = new Player();
-
-HumanPlayer.prototype.playerTurn = function(callback) {
-  this.callback = callback;
-};
-
-HumanPlayer.prototype.playerMove = function(move) {
-  //do nothing after enemy move
-};
-
-HumanPlayer.prototype.onDrop = function(source, target) {
-  if (!this.callback) {
-    return;
-  }
-
-  if (_.isEqual(source, target))
-    return;
-
-  var moveAction = {action: moveWithStringNotationToMoveWithPosition({source: source, target: target})};
-
-  if (this.chessAi.isMoveValid(moveAction.action)) {
-    this.callback(moveAction);
-    this.callback = undefined;
-  } else {
-    return 'snapback';
-  }
-};
-
-
-var moveWithStringNotationToMoveWithPosition = function (move) {
-  return {
-    source: stringNotationToPosition(move.source),
-    target: stringNotationToPosition(move.target)
-  }
-};
-
-var stringNotationToPosition = function (stringNotation) {
-  return {
-    col: stringNotation.charCodeAt(0) - 'a'.charCodeAt(0),
-    row: parseInt(stringNotation[1] - 1)
-  }
-};
-
-
-module.exports = HumanPlayer;
-},{"./Player":13,"lodash":16}],13:[function(require,module,exports){
-var Player = function (set) {
-  this.set = set;
-};
-
-/**
- * Notify that it is player's turn
- * @param callback
- */
-Player.prototype.playerTurn = function (callback) {
-  throw new Error("Unimplemented");
-};
-
-/**
- * Notifies about enemy move
- * @param move
- */
-Player.prototype.playerMove = function() {
-  throw new Error("Unimplemented");
-};
-
-module.exports = Player;
-},{}],14:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 var _ = require("lodash");
 
 module.exports = function () {
@@ -1052,7 +988,7 @@ module.exports = function () {
     }
   }
 };
-},{"lodash":16}],15:[function(require,module,exports){
+},{"lodash":18}],13:[function(require,module,exports){
 var _ = require("lodash");
 
 module.exports = function (state) {
@@ -1094,7 +1030,140 @@ module.exports = function (state) {
     }
   };
 };
-},{"lodash":16}],16:[function(require,module,exports){
+},{"lodash":18}],14:[function(require,module,exports){
+var _ = require('lodash');
+var work = require('webworkify');
+var computerPlayerWorker = work(require('./ComputerPlayerWorker.js'));
+
+var pendingCallback;
+computerPlayerWorker.onmessage = function(message){
+  pendingCallback(message.data);
+};
+
+var Player = require('./Player');
+var ComputerPlayer = function(set, config) {
+  computerPlayerWorker.postMessage({type: 'init', value: config});
+
+  Player.apply(this, set);
+};
+
+ComputerPlayer.prototype = new Player();
+
+ComputerPlayer.prototype.playerTurn = function(callback) {
+  computerPlayerWorker.postMessage({type: 'ai-move'});
+  pendingCallback = callback;
+};
+
+ComputerPlayer.prototype.playerMove = function(move) {
+  computerPlayerWorker.postMessage({type: 'player-move', value: move});
+};
+
+module.exports = ComputerPlayer;
+},{"./ComputerPlayerWorker.js":15,"./Player":17,"lodash":18,"webworkify":19}],15:[function(require,module,exports){
+var ChessAi = require('../../../app/Chess.ai');
+
+var chessAi;
+
+var init = function(config) {
+  chessAi = new ChessAi(config);
+};
+
+var playerMove = function(move) {
+  chessAi.playerMove(move);
+};
+
+var aiMove = function() {
+  var move = chessAi.aiMove();
+  self.postMessage(move);
+};
+
+self.onmessage = function(message) {
+  console.log(message);
+
+  switch(message.data.type) {
+    case 'init' : init(message.data.value); break;
+    case 'player-move' : playerMove(message.data.value); break;
+    case 'ai-move' : aiMove(message.data.value); break;
+  }
+
+};
+},{"../../../app/Chess.ai":4}],16:[function(require,module,exports){
+var _ = require('lodash');
+var Player = require('./Player');
+
+var HumanPlayer = function(set, moveValidator) {
+  this.moveValidator = moveValidator;
+  Player.apply(this, set);
+};
+
+HumanPlayer.prototype = new Player();
+
+HumanPlayer.prototype.playerTurn = function(callback) {
+  this.callback = callback;
+};
+
+HumanPlayer.prototype.playerMove = function(move) {
+  //do nothing after enemy move
+};
+
+HumanPlayer.prototype.onDrop = function(source, target) {
+  if (!this.callback) {
+    return;
+  }
+
+  if (_.isEqual(source, target))
+    return;
+
+  var moveAction = {action: moveWithStringNotationToMoveWithPosition({source: source, target: target})};
+
+  if (this.moveValidator.isMoveValid(moveAction.action)) {
+    this.callback(moveAction);
+    this.callback = undefined;
+  } else {
+    return 'snapback';
+  }
+};
+
+
+var moveWithStringNotationToMoveWithPosition = function (move) {
+  return {
+    source: stringNotationToPosition(move.source),
+    target: stringNotationToPosition(move.target)
+  }
+};
+
+var stringNotationToPosition = function (stringNotation) {
+  return {
+    col: stringNotation.charCodeAt(0) - 'a'.charCodeAt(0),
+    row: parseInt(stringNotation[1] - 1)
+  }
+};
+
+
+module.exports = HumanPlayer;
+},{"./Player":17,"lodash":18}],17:[function(require,module,exports){
+var Player = function (set) {
+  this.set = set;
+};
+
+/**
+ * Notify that it is player's turn
+ * @param callback
+ */
+Player.prototype.playerTurn = function (callback) {
+  throw new Error("Unimplemented");
+};
+
+/**
+ * Notifies about enemy move
+ * @param move
+ */
+Player.prototype.playerMove = function() {
+  throw new Error("Unimplemented");
+};
+
+module.exports = Player;
+},{}],18:[function(require,module,exports){
 (function (global){
 /**
  * @license
@@ -13300,21 +13369,80 @@ module.exports = function (state) {
 }.call(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],17:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
+var bundleFn = arguments[3];
+var sources = arguments[4];
+var cache = arguments[5];
+
+var stringify = JSON.stringify;
+
+module.exports = function (fn) {
+    var keys = [];
+    var wkey;
+    var cacheKeys = Object.keys(cache);
+    
+    for (var i = 0, l = cacheKeys.length; i < l; i++) {
+        var key = cacheKeys[i];
+        if (cache[key].exports === fn) {
+            wkey = key;
+            break;
+        }
+    }
+    
+    if (!wkey) {
+        wkey = Math.floor(Math.pow(16, 8) * Math.random()).toString(16);
+        var wcache = {};
+        for (var i = 0, l = cacheKeys.length; i < l; i++) {
+            var key = cacheKeys[i];
+            wcache[key] = key;
+        }
+        sources[wkey] = [
+            Function(['require','module','exports'], '(' + fn + ')(self)'),
+            wcache
+        ];
+    }
+    var skey = Math.floor(Math.pow(16, 8) * Math.random()).toString(16);
+    
+    var scache = {}; scache[wkey] = wkey;
+    sources[skey] = [
+        Function(['require'],'require(' + stringify(wkey) + ')(self)'),
+        scache
+    ];
+    
+    var src = '(' + bundleFn + ')({'
+        + Object.keys(sources).map(function (key) {
+            return stringify(key) + ':['
+                + sources[key][0]
+                + ',' + stringify(sources[key][1]) + ']'
+            ;
+        }).join(',')
+        + '},{},[' + stringify(skey) + '])'
+    ;
+    
+    var URL = window.URL || window.webkitURL || window.mozURL || window.msURL;
+    
+    return new Worker(URL.createObjectURL(
+        new Blob([src], { type: 'text/javascript' })
+    ));
+};
+
+},{}],20:[function(require,module,exports){
 var _ = require('lodash');
-var ChessAi = require('./Chess.ai');
-var ChessSet = require('./ChessSet');
+var ChessGame = require('./../../app/ChessGame');
+var ChessSet = require('./../../app/ChessSet');
 var HumanPlayer = require('./Players/HumanPlayer');
 var ComputerPlayer = require('./Players/ComputerPlayer');
 
-var chessAi = new ChessAi({
+var ComputerAIConfig = {
   set: 'b',
   strategy: 'alphabeta',
   depth: '4' //max reasonable depth is 5
-});
+};
 
-var whitePlayer = new HumanPlayer(ChessSet.white, chessAi);
-var blackPlayer = new ComputerPlayer(ChessSet.black, chessAi);
+var chessGame = new ChessGame();
+
+var whitePlayer = new HumanPlayer(ChessSet.white, chessGame);
+var blackPlayer = new ComputerPlayer(ChessSet.black, ComputerAIConfig);
 
 var white = true;
 var dispatcher = function () {
@@ -13330,6 +13458,8 @@ var dispatcher = function () {
 
   moving.playerTurn(function(move) {
     var moveAction = move.action;
+    chessGame.registerMove(moveAction);
+
     waiting.playerMove(moveAction);
 
     setTimeout(function () {
@@ -13337,7 +13467,7 @@ var dispatcher = function () {
     }, 100);
   });
 
-  board.position(chessAi.getGameState());
+  board.position(chessGame.getGameState());
 
   white = !white;
 };
@@ -13345,29 +13475,29 @@ var dispatcher = function () {
 // update the board position after the piece snap
 // for castling, en passant, pawn promotion
 var onSnapEnd = function () {
-  board.position(chessAi.getGameState());
+  board.position(chessGame.getGameState());
 };
 
 var printStatus = function() {
   console.log("=======================");
-  console.log("Turn: " + (chessAi.board.setInControl.isWhite()? 'white' : 'black'));
+  console.log("Turn: " + (chessGame.board.setInControl.isWhite()? 'white' : 'black'));
 
-  if (chessAi.board.isCheck(ChessSet.white)) {
+  if (chessGame.board.isCheck(ChessSet.white)) {
     console.log('WHITE CHECKED');
   }
-  if (chessAi.board.isCheckMate(ChessSet.white)) {
+  if (chessGame.board.isCheckMate(ChessSet.white)) {
     console.log('WHITE CHECK MATED');
   }
 
-  if (chessAi.board.isCheck(ChessSet.black)) {
+  if (chessGame.board.isCheck(ChessSet.black)) {
     console.log('BLACK CHECKED');
   }
-  if (chessAi.board.isCheckMate(ChessSet.black)) {
+  if (chessGame.board.isCheckMate(ChessSet.black)) {
     console.log('BLACK CHECK MATED');
   }
 
-  console.log("White pieces: " + chessAi.board.getPiecesForSet(ChessSet.white).length );
-  console.log("Black pieces: " + chessAi.board.getPiecesForSet(ChessSet.black).length );
+  console.log("White pieces: " + chessGame.board.getPiecesForSet(ChessSet.white).length );
+  console.log("Black pieces: " + chessGame.board.getPiecesForSet(ChessSet.black).length );
 };
 
 var boardCfg = {
@@ -13378,7 +13508,7 @@ var boardCfg = {
 
 var board = new ChessBoard('chess-board', boardCfg);
 
-board.position(chessAi.getGameState());
+board.position(chessGame.getGameState());
 
 dispatcher();
-},{"./Chess.ai":4,"./ChessSet":10,"./Players/ComputerPlayer":11,"./Players/HumanPlayer":12,"lodash":16}]},{},[17]);
+},{"./../../app/ChessGame":9,"./../../app/ChessSet":11,"./Players/ComputerPlayer":14,"./Players/HumanPlayer":16,"lodash":18}]},{},[20]);

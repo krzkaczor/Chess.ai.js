@@ -13,6 +13,11 @@ To start development just type:
 		
 	npm install
 	
+
+To build example and create bundle:
+
+	watchify example/js/Game.js -o example/bundle.js
+
 To run tests:
 	
 	npm test
@@ -20,7 +25,6 @@ To run tests:
 
 Todo
 ----
-- example should use `webworkers`
 - missing chess game elements (castling, pawn promotion etc.)
 - more complicated game state measure
 - implement other AI algorithms
