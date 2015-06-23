@@ -13,6 +13,11 @@ To start development just type:
 		
 	npm install
 	
+
+To build example and create bundle:
+
+	watchify example/js/Game.js -o example/bundle.js
+
 To run tests:
 	
 	npm test
