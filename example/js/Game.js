@@ -1,17 +1,19 @@
 var _ = require('lodash');
-var ChessAi = require('./../../app/Chess.ai.js');
+var ChessGame = require('./../../app/ChessGame');
 var ChessSet = require('./../../app/ChessSet');
 var HumanPlayer = require('./Players/HumanPlayer');
 var ComputerPlayer = require('./Players/ComputerPlayer');
 
-var chessAi = new ChessAi({
+var ComputerAIConfig = {
   set: 'b',
   strategy: 'alphabeta',
   depth: '4' //max reasonable depth is 5
-});
+};
 
-var whitePlayer = new HumanPlayer(ChessSet.white, chessAi);
-var blackPlayer = new ComputerPlayer(ChessSet.black, chessAi);
+var chessGame = new ChessGame();
+
+var whitePlayer = new HumanPlayer(ChessSet.white, chessGame);
+var blackPlayer = new ComputerPlayer(ChessSet.black, ComputerAIConfig);
 
 var white = true;
 var dispatcher = function () {
@@ -27,6 +29,8 @@ var dispatcher = function () {
 
   moving.playerTurn(function(move) {
     var moveAction = move.action;
+    chessGame.registerMove(moveAction);
+
     waiting.playerMove(moveAction);
 
     setTimeout(function () {
@@ -34,7 +38,7 @@ var dispatcher = function () {
     }, 100);
   });
 
-  board.position(chessAi.getGameState());
+  board.position(chessGame.getGameState());
 
   white = !white;
 };
@@ -42,29 +46,29 @@ var dispatcher = function () {
 // update the board position after the piece snap
 // for castling, en passant, pawn promotion
 var onSnapEnd = function () {
-  board.position(chessAi.getGameState());
+  board.position(chessGame.getGameState());
 };
 
 var printStatus = function() {
   console.log("=======================");
-  console.log("Turn: " + (chessAi.board.setInControl.isWhite()? 'white' : 'black'));
+  console.log("Turn: " + (chessGame.board.setInControl.isWhite()? 'white' : 'black'));
 
-  if (chessAi.board.isCheck(ChessSet.white)) {
+  if (chessGame.board.isCheck(ChessSet.white)) {
     console.log('WHITE CHECKED');
   }
-  if (chessAi.board.isCheckMate(ChessSet.white)) {
+  if (chessGame.board.isCheckMate(ChessSet.white)) {
     console.log('WHITE CHECK MATED');
   }
 
-  if (chessAi.board.isCheck(ChessSet.black)) {
+  if (chessGame.board.isCheck(ChessSet.black)) {
     console.log('BLACK CHECKED');
   }
-  if (chessAi.board.isCheckMate(ChessSet.black)) {
+  if (chessGame.board.isCheckMate(ChessSet.black)) {
     console.log('BLACK CHECK MATED');
   }
 
-  console.log("White pieces: " + chessAi.board.getPiecesForSet(ChessSet.white).length );
-  console.log("Black pieces: " + chessAi.board.getPiecesForSet(ChessSet.black).length );
+  console.log("White pieces: " + chessGame.board.getPiecesForSet(ChessSet.white).length );
+  console.log("Black pieces: " + chessGame.board.getPiecesForSet(ChessSet.black).length );
 };
 
 var boardCfg = {
@@ -75,6 +79,6 @@ var boardCfg = {
 
 var board = new ChessBoard('chess-board', boardCfg);
 
-board.position(chessAi.getGameState());
+board.position(chessGame.getGameState());
 
 dispatcher();

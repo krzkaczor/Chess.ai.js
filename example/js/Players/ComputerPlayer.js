@@ -1,8 +1,9 @@
 var _ = require('lodash');
 var Player = require('./Player');
+var ChessAi = require('../../../app/Chess.ai');
 
-var ComputerPlayer = function(set, chessAi) {
-  this.chessAi = chessAi;
+var ComputerPlayer = function(set, config) {
+  this.chessAi = new ChessAi(config);
   Player.apply(this, set);
 };
 

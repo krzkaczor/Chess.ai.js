@@ -91,7 +91,7 @@ module.exports = function (childStateIterator, measurement, MAX_DEPTH) {
     }
   }
 };
-},{"lodash":16}],2:[function(require,module,exports){
+},{"lodash":17}],2:[function(require,module,exports){
 var _ = require('lodash');
 
 /**
@@ -147,7 +147,7 @@ module.exports = function (childStateGenerator, measurement, MAX_DEPTH) {
     }
   }
 };
-},{"lodash":16}],3:[function(require,module,exports){
+},{"lodash":17}],3:[function(require,module,exports){
 var _ = require('lodash');
 
 module.exports = function (childStateGenerator) {
@@ -158,7 +158,7 @@ module.exports = function (childStateGenerator) {
     }
   };
 };
-},{"lodash":16}],4:[function(require,module,exports){
+},{"lodash":17}],4:[function(require,module,exports){
 var _ = require('lodash');
 var ChessBoardRepresentation = require('./ChessBoard/ChessBoardRepresentation');
 var ChessSet = require('./ChessSet');
@@ -263,7 +263,7 @@ ChessAi.prototype.getGameState = function() {
 
 
 module.exports = ChessAi;
-},{"./AiStrategies/AlphaBetaStrategy":1,"./AiStrategies/MinMaxStrategy":2,"./AiStrategies/RandomStrategy":3,"./ChessBoard/ChessBoardRepresentation":6,"./ChessBoardMeasurements/WeightedMeasure":7,"./ChessSet":10,"./StateGenerators/StatesGenerator":11,"./StateGenerators/StatesIterator":12,"lodash":16}],5:[function(require,module,exports){
+},{"./AiStrategies/AlphaBetaStrategy":1,"./AiStrategies/MinMaxStrategy":2,"./AiStrategies/RandomStrategy":3,"./ChessBoard/ChessBoardRepresentation":6,"./ChessBoardMeasurements/WeightedMeasure":7,"./ChessSet":11,"./StateGenerators/StatesGenerator":12,"./StateGenerators/StatesIterator":13,"lodash":17}],5:[function(require,module,exports){
 var _ = require('lodash');
 
 var ChessBoardField = function (board, row, col, chessPiece) {
@@ -364,7 +364,7 @@ ChessBoardField.prototype = {
 };
 
 module.exports = ChessBoardField;
-},{"lodash":16}],6:[function(require,module,exports){
+},{"lodash":17}],6:[function(require,module,exports){
 var _ = require('lodash');
 var CHESS_CFG = require('../ChessConfig');
 var ChessBoardField = require('./ChessBoardField');
@@ -603,7 +603,7 @@ ChessBoardRepresentation.prototype = {
 };
 
 module.exports = ChessBoardRepresentation;
-},{"../ChessConfig":8,"../ChessSet":10,"./../ChessPiecesFactory":9,"./ChessBoardField":5,"lodash":16}],7:[function(require,module,exports){
+},{"../ChessConfig":8,"../ChessSet":11,"./../ChessPiecesFactory":10,"./ChessBoardField":5,"lodash":17}],7:[function(require,module,exports){
 var pieceImportance = function (piece) {
   switch (piece.name) {
     case 'pawn' :
@@ -666,6 +666,38 @@ var config = {
 module.exports = config;
 
 },{}],9:[function(require,module,exports){
+var ChessBoardRepresentation = require('./ChessBoard/ChessBoardRepresentation');
+
+var ChessGame = function() {
+  this.board = ChessBoardRepresentation.startingPopulation();
+};
+
+ChessGame.prototype =  {
+  isMoveValid: function(move) {
+    var selectedPiece = this.board.select(move.source).getChessPiece();
+    var isValid = selectedPiece.canMove(move.target);
+
+    if (isValid) {
+      var nextState = this.board.makeMove(move);
+      return !nextState.isCheck(selectedPiece.set);
+    }
+    return isValid;
+  },
+
+  registerMove: function (move) {
+    if (!this.isMoveValid(move))
+      return null;
+
+    this.board = this.board.makeMove(move);
+  },
+
+  getGameState: function() {
+    return this.board.toFenNotation();
+  }
+};
+
+module.exports = ChessGame;
+},{"./ChessBoard/ChessBoardRepresentation":6}],10:[function(require,module,exports){
 var CHESS_CFG = require('./ChessConfig');
 var _ = require('lodash');
 
@@ -882,7 +914,7 @@ module.exports = {
   Queen: Queen,
   King: King
 };
-},{"./ChessConfig":8,"lodash":16}],10:[function(require,module,exports){
+},{"./ChessConfig":8,"lodash":17}],11:[function(require,module,exports){
 var ChessSet = function(chessSet) {
   if (chessSet != 'w' && chessSet != 'b') {
     throw new Error('Illegal chess set');
@@ -929,7 +961,7 @@ var sets = {
 
 
 module.exports = sets;
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 var _ = require("lodash");
 
 module.exports = function () {
@@ -956,7 +988,7 @@ module.exports = function () {
     }
   }
 };
-},{"lodash":16}],12:[function(require,module,exports){
+},{"lodash":17}],13:[function(require,module,exports){
 var _ = require("lodash");
 
 module.exports = function (state) {
@@ -998,12 +1030,13 @@ module.exports = function (state) {
     }
   };
 };
-},{"lodash":16}],13:[function(require,module,exports){
+},{"lodash":17}],14:[function(require,module,exports){
 var _ = require('lodash');
 var Player = require('./Player');
+var ChessAi = require('../../../app/Chess.ai');
 
-var ComputerPlayer = function(set, chessAi) {
-  this.chessAi = chessAi;
+var ComputerPlayer = function(set, config) {
+  this.chessAi = new ChessAi(config);
   Player.apply(this, set);
 };
 
@@ -1018,12 +1051,12 @@ ComputerPlayer.prototype.playerMove = function(move) {
 };
 
 module.exports = ComputerPlayer;
-},{"./Player":15,"lodash":16}],14:[function(require,module,exports){
+},{"../../../app/Chess.ai":4,"./Player":16,"lodash":17}],15:[function(require,module,exports){
 var _ = require('lodash');
 var Player = require('./Player');
 
-var HumanPlayer = function(set, chessAi) {
-  this.chessAi = chessAi;
+var HumanPlayer = function(set, moveValidator) {
+  this.moveValidator = moveValidator;
   Player.apply(this, set);
 };
 
@@ -1047,7 +1080,7 @@ HumanPlayer.prototype.onDrop = function(source, target) {
 
   var moveAction = {action: moveWithStringNotationToMoveWithPosition({source: source, target: target})};
 
-  if (this.chessAi.isMoveValid(moveAction.action)) {
+  if (this.moveValidator.isMoveValid(moveAction.action)) {
     this.callback(moveAction);
     this.callback = undefined;
   } else {
@@ -1072,7 +1105,7 @@ var stringNotationToPosition = function (stringNotation) {
 
 
 module.exports = HumanPlayer;
-},{"./Player":15,"lodash":16}],15:[function(require,module,exports){
+},{"./Player":16,"lodash":17}],16:[function(require,module,exports){
 var Player = function (set) {
   this.set = set;
 };
@@ -1094,7 +1127,7 @@ Player.prototype.playerMove = function() {
 };
 
 module.exports = Player;
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 (function (global){
 /**
  * @license
@@ -13300,21 +13333,23 @@ module.exports = Player;
 }.call(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 var _ = require('lodash');
-var ChessAi = require('./../../app/Chess.ai.js');
+var ChessGame = require('./../../app/ChessGame');
 var ChessSet = require('./../../app/ChessSet');
 var HumanPlayer = require('./Players/HumanPlayer');
 var ComputerPlayer = require('./Players/ComputerPlayer');
 
-var chessAi = new ChessAi({
+var ComputerAIConfig = {
   set: 'b',
   strategy: 'alphabeta',
   depth: '4' //max reasonable depth is 5
-});
+};
 
-var whitePlayer = new HumanPlayer(ChessSet.white, chessAi);
-var blackPlayer = new ComputerPlayer(ChessSet.black, chessAi);
+var chessGame = new ChessGame();
+
+var whitePlayer = new HumanPlayer(ChessSet.white, chessGame);
+var blackPlayer = new ComputerPlayer(ChessSet.black, ComputerAIConfig);
 
 var white = true;
 var dispatcher = function () {
@@ -13330,6 +13365,8 @@ var dispatcher = function () {
 
   moving.playerTurn(function(move) {
     var moveAction = move.action;
+    chessGame.registerMove(moveAction);
+
     waiting.playerMove(moveAction);
 
     setTimeout(function () {
@@ -13337,7 +13374,7 @@ var dispatcher = function () {
     }, 100);
   });
 
-  board.position(chessAi.getGameState());
+  board.position(chessGame.getGameState());
 
   white = !white;
 };
@@ -13345,29 +13382,29 @@ var dispatcher = function () {
 // update the board position after the piece snap
 // for castling, en passant, pawn promotion
 var onSnapEnd = function () {
-  board.position(chessAi.getGameState());
+  board.position(chessGame.getGameState());
 };
 
 var printStatus = function() {
   console.log("=======================");
-  console.log("Turn: " + (chessAi.board.setInControl.isWhite()? 'white' : 'black'));
+  console.log("Turn: " + (chessGame.board.setInControl.isWhite()? 'white' : 'black'));
 
-  if (chessAi.board.isCheck(ChessSet.white)) {
+  if (chessGame.board.isCheck(ChessSet.white)) {
     console.log('WHITE CHECKED');
   }
-  if (chessAi.board.isCheckMate(ChessSet.white)) {
+  if (chessGame.board.isCheckMate(ChessSet.white)) {
     console.log('WHITE CHECK MATED');
   }
 
-  if (chessAi.board.isCheck(ChessSet.black)) {
+  if (chessGame.board.isCheck(ChessSet.black)) {
     console.log('BLACK CHECKED');
   }
-  if (chessAi.board.isCheckMate(ChessSet.black)) {
+  if (chessGame.board.isCheckMate(ChessSet.black)) {
     console.log('BLACK CHECK MATED');
   }
 
-  console.log("White pieces: " + chessAi.board.getPiecesForSet(ChessSet.white).length );
-  console.log("Black pieces: " + chessAi.board.getPiecesForSet(ChessSet.black).length );
+  console.log("White pieces: " + chessGame.board.getPiecesForSet(ChessSet.white).length );
+  console.log("Black pieces: " + chessGame.board.getPiecesForSet(ChessSet.black).length );
 };
 
 var boardCfg = {
@@ -13378,7 +13415,7 @@ var boardCfg = {
 
 var board = new ChessBoard('chess-board', boardCfg);
 
-board.position(chessAi.getGameState());
+board.position(chessGame.getGameState());
 
 dispatcher();
-},{"./../../app/Chess.ai.js":4,"./../../app/ChessSet":10,"./Players/ComputerPlayer":13,"./Players/HumanPlayer":14,"lodash":16}]},{},[17]);
+},{"./../../app/ChessGame":9,"./../../app/ChessSet":11,"./Players/ComputerPlayer":14,"./Players/HumanPlayer":15,"lodash":17}]},{},[18]);
