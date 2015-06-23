@@ -1,6 +1,6 @@
 var _ = require('lodash');
-var ChessAi = require('./Chess.ai');
-var ChessSet = require('./ChessSet');
+var ChessAi = require('./../../app/Chess.ai.js');
+var ChessSet = require('./../../app/ChessSet');
 var HumanPlayer = require('./Players/HumanPlayer');
 var ComputerPlayer = require('./Players/ComputerPlayer');
 

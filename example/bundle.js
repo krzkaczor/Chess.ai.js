@@ -263,7 +263,7 @@ ChessAi.prototype.getGameState = function() {
 
 
 module.exports = ChessAi;
-},{"./AiStrategies/AlphaBetaStrategy":1,"./AiStrategies/MinMaxStrategy":2,"./AiStrategies/RandomStrategy":3,"./ChessBoard/ChessBoardRepresentation":6,"./ChessBoardMeasurements/WeightedMeasure":7,"./ChessSet":10,"./StateGenerators/StatesGenerator":14,"./StateGenerators/StatesIterator":15,"lodash":16}],5:[function(require,module,exports){
+},{"./AiStrategies/AlphaBetaStrategy":1,"./AiStrategies/MinMaxStrategy":2,"./AiStrategies/RandomStrategy":3,"./ChessBoard/ChessBoardRepresentation":6,"./ChessBoardMeasurements/WeightedMeasure":7,"./ChessSet":10,"./StateGenerators/StatesGenerator":11,"./StateGenerators/StatesIterator":12,"lodash":16}],5:[function(require,module,exports){
 var _ = require('lodash');
 
 var ChessBoardField = function (board, row, col, chessPiece) {
@@ -930,6 +930,75 @@ var sets = {
 
 module.exports = sets;
 },{}],11:[function(require,module,exports){
+var _ = require("lodash");
+
+module.exports = function () {
+  return {
+    /**
+     * Generates all possible moves
+     */
+    generateChildrenStates: function (state) {
+      var moves = _.flatten(state.getPiecesForSet(state.setInControl).map(function (chessPiece) {
+        return chessPiece.generateAllPossibleMoves().map(function (target) {
+          return {
+            source: chessPiece.field.toSimpleField(),
+            target: target.toSimpleField()
+          };
+        });
+      }));
+
+      return moves.map(function (move) {
+        return {
+          action: move,
+          state: state.makeMove(move)
+        }
+      });
+    }
+  }
+};
+},{"lodash":16}],12:[function(require,module,exports){
+var _ = require("lodash");
+
+module.exports = function (state) {
+  var generatedMoves = [];
+  var generatedMovesIndex = 0;
+
+  var arrayToProcess = state.getPiecesForSet(state.setInControl);
+  var indexToProcess = 0;
+  //todo:refactor
+  var generateMore = function() {
+    var newMoves = false;
+    while(indexToProcess < arrayToProcess.length && !newMoves) {
+      arrayToProcess[indexToProcess].generateAllPossibleMoves().forEach(function(target) {
+        var chessPiece = arrayToProcess[indexToProcess];
+        var move = {
+          source: chessPiece.field.toSimpleField(),
+          target: target.toSimpleField()
+        };
+        generatedMoves.push(move);
+        newMoves = true;
+      });
+      indexToProcess++;
+    }
+    return newMoves;
+  };
+
+  return {
+    hasNext: function() {
+      var buffered =  generatedMovesIndex < generatedMoves.length;
+      return buffered || generateMore();
+    },
+
+    next: function () {
+      var move = generatedMoves[generatedMovesIndex++];
+      return {
+        action: move,
+        state: state.makeMove(move)
+      };
+    }
+  };
+};
+},{"lodash":16}],13:[function(require,module,exports){
 var _ = require('lodash');
 var Player = require('./Player');
 
@@ -949,7 +1018,7 @@ ComputerPlayer.prototype.playerMove = function(move) {
 };
 
 module.exports = ComputerPlayer;
-},{"./Player":13,"lodash":16}],12:[function(require,module,exports){
+},{"./Player":15,"lodash":16}],14:[function(require,module,exports){
 var _ = require('lodash');
 var Player = require('./Player');
 
@@ -1003,7 +1072,7 @@ var stringNotationToPosition = function (stringNotation) {
 
 
 module.exports = HumanPlayer;
-},{"./Player":13,"lodash":16}],13:[function(require,module,exports){
+},{"./Player":15,"lodash":16}],15:[function(require,module,exports){
 var Player = function (set) {
   this.set = set;
 };
@@ -1025,76 +1094,7 @@ Player.prototype.playerMove = function() {
 };
 
 module.exports = Player;
-},{}],14:[function(require,module,exports){
-var _ = require("lodash");
-
-module.exports = function () {
-  return {
-    /**
-     * Generates all possible moves
-     */
-    generateChildrenStates: function (state) {
-      var moves = _.flatten(state.getPiecesForSet(state.setInControl).map(function (chessPiece) {
-        return chessPiece.generateAllPossibleMoves().map(function (target) {
-          return {
-            source: chessPiece.field.toSimpleField(),
-            target: target.toSimpleField()
-          };
-        });
-      }));
-
-      return moves.map(function (move) {
-        return {
-          action: move,
-          state: state.makeMove(move)
-        }
-      });
-    }
-  }
-};
-},{"lodash":16}],15:[function(require,module,exports){
-var _ = require("lodash");
-
-module.exports = function (state) {
-  var generatedMoves = [];
-  var generatedMovesIndex = 0;
-
-  var arrayToProcess = state.getPiecesForSet(state.setInControl);
-  var indexToProcess = 0;
-  //todo:refactor
-  var generateMore = function() {
-    var newMoves = false;
-    while(indexToProcess < arrayToProcess.length && !newMoves) {
-      arrayToProcess[indexToProcess].generateAllPossibleMoves().forEach(function(target) {
-        var chessPiece = arrayToProcess[indexToProcess];
-        var move = {
-          source: chessPiece.field.toSimpleField(),
-          target: target.toSimpleField()
-        };
-        generatedMoves.push(move);
-        newMoves = true;
-      });
-      indexToProcess++;
-    }
-    return newMoves;
-  };
-
-  return {
-    hasNext: function() {
-      var buffered =  generatedMovesIndex < generatedMoves.length;
-      return buffered || generateMore();
-    },
-
-    next: function () {
-      var move = generatedMoves[generatedMovesIndex++];
-      return {
-        action: move,
-        state: state.makeMove(move)
-      };
-    }
-  };
-};
-},{"lodash":16}],16:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 (function (global){
 /**
  * @license
@@ -13302,8 +13302,8 @@ module.exports = function (state) {
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],17:[function(require,module,exports){
 var _ = require('lodash');
-var ChessAi = require('./Chess.ai');
-var ChessSet = require('./ChessSet');
+var ChessAi = require('./../../app/Chess.ai.js');
+var ChessSet = require('./../../app/ChessSet');
 var HumanPlayer = require('./Players/HumanPlayer');
 var ComputerPlayer = require('./Players/ComputerPlayer');
 
@@ -13381,4 +13381,4 @@ var board = new ChessBoard('chess-board', boardCfg);
 board.position(chessAi.getGameState());
 
 dispatcher();
-},{"./Chess.ai":4,"./ChessSet":10,"./Players/ComputerPlayer":11,"./Players/HumanPlayer":12,"lodash":16}]},{},[17]);
+},{"./../../app/Chess.ai.js":4,"./../../app/ChessSet":10,"./Players/ComputerPlayer":13,"./Players/HumanPlayer":14,"lodash":16}]},{},[17]);
