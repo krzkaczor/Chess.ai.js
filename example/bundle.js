@@ -738,7 +738,7 @@ ChessPiece.prototype.canMove = function (field) {
 };
 
 ChessPiece.prototype.generateAllPossibleMoves = function () {
-  var moves = _.shuffle(this._generateAllPossibleMoves());
+  var moves = this._generateAllPossibleMoves();
   var field = this.field;
   var self = this;
 
