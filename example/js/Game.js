@@ -7,7 +7,7 @@ var ComputerPlayer = require('./Players/ComputerPlayer');
 var ComputerAIConfig = {
   set: 'b',
   strategy: 'alphabeta',
-  depth: '4' //max reasonable depth is 5
+  depth: '5' //max reasonable depth is 5
 };
 
 var chessGame = new ChessGame();

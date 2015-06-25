@@ -38,12 +38,19 @@ ChessPiece.prototype.canMove = function (field) {
 };
 
 ChessPiece.prototype.generateAllPossibleMoves = function () {
-  var moves = this._generateAllPossibleMoves();
+  var moves = _.shuffle(this._generateAllPossibleMoves());
   var field = this.field;
+  var self = this;
 
-  return moves.filter(function(move) {
-    return !field.board.makeMove({source: field.toSimpleField(), target: move}).isCheck(field.board.setInControl);
-  })
+  var validMoves = moves; //.filter(function(move) {
+  //  return !field.board.makeMove({source: field.toSimpleField(), target: move}).isCheck(field.board.setInControl);
+  //});
+
+  //moves that capture enemy are first on list
+  return _.sortBy(validMoves, function(moveTarget) {
+    var moveTargetField = field.board.select(moveTarget);
+    return !moveTargetField.isEmpty() && moveTarget.chessPiece.set.isEnemyOf(self.set)? 1 : 0;
+  });
 };
 
 var Pawn = function (chessSet, field) {
