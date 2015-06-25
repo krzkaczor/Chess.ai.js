@@ -1,5 +1,5 @@
 var ChessSet = require('../app/ChessSet');
-var ChessBoardRepresentation = require('../app/Chessboard/ChessBoardRepresentation');
+var ChessBoardRepresentation = require('../app/ChessBoard/ChessBoardRepresentation');
 var ChessPiecesFactory = require('../app/ChessPiecesFactory');
 
 module.exports = {
