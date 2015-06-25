@@ -6,37 +6,55 @@ var MinMaxStrategy = require('./AiStrategies/MinMaxStrategy');
 var AlphaBetaStrategy = require('./AiStrategies/AlphaBetaStrategy');
 var StatesGenerator = require('./StateGenerators/StatesGenerator');
 var StatesIterator = require('./StateGenerators/StatesIterator');
-var WeightedMeasure = require('./ChessBoardMeasurements/WeightedMeasure');
+var WeightedMeasure = require('./ChessBoardMeasures/WeightedMeasure');
+var TableWeightedMeasure = require('./ChessBoardMeasures/TableWeightedMeasure');
 
 var ChessAi = function(options) {
 
   var defaultOptions = {
     set: 'b', //computer starts as black
     strategy: 'alphabeta',
+    measure: 'table-weighted',
     depth: '4',
     initialState: ChessBoardRepresentation.startingPopulation()
   };
 
   options = _.extend(defaultOptions, options);
 
+  console.log("Initializing AI with options: ");
+  console.log(options);
+
+
   this.aiSet = options.set == 'w'? ChessSet.white : ChessSet.black;
   this.playerSet = this.aiSet.getEnemy();
-  var measurement = WeightedMeasure(this.aiSet);
 
+
+  var measurement;
+  switch (options.measure) {
+    case 'weighted' :
+      measurement = WeightedMeasure(this.aiSet);
+      break;
+    case 'table-weighted' :
+      measurement = TableWeightedMeasure(this.aiSet);
+      break;
+    default: throw new Error('Unsupported measurement');
+  }
+
+  var childStateGenerator;
   switch(options.strategy) {
     case 'random':
-      var childStateGenerator = StatesGenerator();
+      childStateGenerator = StatesGenerator();
       this.aiStrategy = RandomStrategy(childStateGenerator.generateChildrenStates, measurement, options.depth);
       break;
     case 'minmax':
-      var childStateGenerator = StatesGenerator();
+      childStateGenerator = StatesGenerator();
       this.aiStrategy = MinMaxStrategy(childStateGenerator.generateChildrenStates, measurement, options.depth);
       break;
     case 'alphabeta':
       var childStateIterator = StatesIterator;
       this.aiStrategy = AlphaBetaStrategy(childStateIterator, measurement, options.depth);
       break;
-    default: throw new Error('Unsupported strategy'); break;
+    default: throw new Error('Unsupported strategy');
   }
 
   this.board = options.initialState;

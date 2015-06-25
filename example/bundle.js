@@ -91,7 +91,7 @@ module.exports = function (childStateIterator, measurement, MAX_DEPTH) {
     }
   }
 };
-},{"lodash":19}],2:[function(require,module,exports){
+},{"lodash":20}],2:[function(require,module,exports){
 var _ = require('lodash');
 
 /**
@@ -147,7 +147,7 @@ module.exports = function (childStateGenerator, measurement, MAX_DEPTH) {
     }
   }
 };
-},{"lodash":19}],3:[function(require,module,exports){
+},{"lodash":20}],3:[function(require,module,exports){
 var _ = require('lodash');
 
 module.exports = function (childStateGenerator) {
@@ -158,7 +158,7 @@ module.exports = function (childStateGenerator) {
     }
   };
 };
-},{"lodash":19}],4:[function(require,module,exports){
+},{"lodash":20}],4:[function(require,module,exports){
 var _ = require('lodash');
 var ChessBoardRepresentation = require('./ChessBoard/ChessBoardRepresentation');
 var ChessSet = require('./ChessSet');
@@ -167,37 +167,55 @@ var MinMaxStrategy = require('./AiStrategies/MinMaxStrategy');
 var AlphaBetaStrategy = require('./AiStrategies/AlphaBetaStrategy');
 var StatesGenerator = require('./StateGenerators/StatesGenerator');
 var StatesIterator = require('./StateGenerators/StatesIterator');
-var WeightedMeasure = require('./ChessBoardMeasurements/WeightedMeasure');
+var WeightedMeasure = require('./ChessBoardMeasures/WeightedMeasure');
+var TableWeightedMeasure = require('./ChessBoardMeasures/TableWeightedMeasure');
 
 var ChessAi = function(options) {
 
   var defaultOptions = {
     set: 'b', //computer starts as black
     strategy: 'alphabeta',
+    measure: 'table-weighted',
     depth: '4',
     initialState: ChessBoardRepresentation.startingPopulation()
   };
 
   options = _.extend(defaultOptions, options);
 
+  console.log("Initializing AI with options: ");
+  console.log(options);
+
+
   this.aiSet = options.set == 'w'? ChessSet.white : ChessSet.black;
   this.playerSet = this.aiSet.getEnemy();
-  var measurement = WeightedMeasure(this.aiSet);
 
+
+  var measurement;
+  switch (options.measure) {
+    case 'weighted' :
+      measurement = WeightedMeasure(this.aiSet);
+      break;
+    case 'table-weighted' :
+      measurement = TableWeightedMeasure(this.aiSet);
+      break;
+    default: throw new Error('Unsupported measurement');
+  }
+
+  var childStateGenerator;
   switch(options.strategy) {
     case 'random':
-      var childStateGenerator = StatesGenerator();
+      childStateGenerator = StatesGenerator();
       this.aiStrategy = RandomStrategy(childStateGenerator.generateChildrenStates, measurement, options.depth);
       break;
     case 'minmax':
-      var childStateGenerator = StatesGenerator();
+      childStateGenerator = StatesGenerator();
       this.aiStrategy = MinMaxStrategy(childStateGenerator.generateChildrenStates, measurement, options.depth);
       break;
     case 'alphabeta':
       var childStateIterator = StatesIterator;
       this.aiStrategy = AlphaBetaStrategy(childStateIterator, measurement, options.depth);
       break;
-    default: throw new Error('Unsupported strategy'); break;
+    default: throw new Error('Unsupported strategy');
   }
 
   this.board = options.initialState;
@@ -263,7 +281,7 @@ ChessAi.prototype.getGameState = function() {
 
 
 module.exports = ChessAi;
-},{"./AiStrategies/AlphaBetaStrategy":1,"./AiStrategies/MinMaxStrategy":2,"./AiStrategies/RandomStrategy":3,"./ChessBoard/ChessBoardRepresentation":6,"./ChessBoardMeasurements/WeightedMeasure":7,"./ChessSet":11,"./StateGenerators/StatesGenerator":12,"./StateGenerators/StatesIterator":13,"lodash":19}],5:[function(require,module,exports){
+},{"./AiStrategies/AlphaBetaStrategy":1,"./AiStrategies/MinMaxStrategy":2,"./AiStrategies/RandomStrategy":3,"./ChessBoard/ChessBoardRepresentation":6,"./ChessBoardMeasures/TableWeightedMeasure":7,"./ChessBoardMeasures/WeightedMeasure":8,"./ChessSet":12,"./StateGenerators/StatesGenerator":13,"./StateGenerators/StatesIterator":14,"lodash":20}],5:[function(require,module,exports){
 var _ = require('lodash');
 
 var ChessBoardField = function (board, row, col, chessPiece) {
@@ -364,7 +382,7 @@ ChessBoardField.prototype = {
 };
 
 module.exports = ChessBoardField;
-},{"lodash":19}],6:[function(require,module,exports){
+},{"lodash":20}],6:[function(require,module,exports){
 var _ = require('lodash');
 var CHESS_CFG = require('../ChessConfig');
 var ChessBoardField = require('./ChessBoardField');
@@ -603,7 +621,124 @@ ChessBoardRepresentation.prototype = {
 };
 
 module.exports = ChessBoardRepresentation;
-},{"../ChessConfig":8,"../ChessSet":11,"./../ChessPiecesFactory":10,"./ChessBoardField":5,"lodash":19}],7:[function(require,module,exports){
+},{"../ChessConfig":9,"../ChessSet":12,"./../ChessPiecesFactory":11,"./ChessBoardField":5,"lodash":20}],7:[function(require,module,exports){
+var ChessConfig = require('../ChessConfig');
+
+
+//based on
+//http://chessprogramming.wikispaces.com/Simplified+evaluation+function
+var pawnTable = [
+    [0,  0,  0,  0,  0,  0,  0,  0],
+    [50, 50, 50, 50, 50, 50, 50, 50],
+    [10, 10, 20, 30, 30, 20, 10, 10],
+    [5,  5, 10, 25, 25, 10,  5,  5],
+    [0,  0,  0, 20, 20,  0,  0,  0],
+    [5, -5,-10,  0,  0,-10, -5,  5],
+    [5, 10, 10,-20,-20, 10, 10,  5],
+    [0,  0,  0,  0,  0,  0,  0,  0]
+];
+
+var knightTable = [
+    [-50,-40,-30,-30,-30,-30,-40,-50],
+    [-40,-20,  0,  0,  0,  0,-20,-40],
+    [-30,  0, 10, 15, 15, 10,  0,-30],
+    [-30,  5, 15, 20, 20, 15,  5,-30],
+    [-30,  0, 15, 20, 20, 15,  0,-30],
+    [-30,  5, 10, 15, 15, 10,  5,-30],
+    [-40,-20,  0,  5,  5,  0,-20,-40],
+    [-50,-40,-30,-30,-30,-30,-40,-50]
+];
+
+var bishopTable = [
+    [-20,-10,-10,-10,-10,-10,-10,-20],
+    [-10,  0,  0,  0,  0,  0,  0,-10],
+    [-10,  0,  5, 10, 10,  5,  0,-10],
+    [-10,  5,  5, 10, 10,  5,  5,-10],
+    [-10,  0, 10, 10, 10, 10,  0,-10],
+    [-10, 10, 10, 10, 10, 10, 10,-10],
+    [-10,  5,  0,  0,  0,  0,  5,-10],
+    [-20,-10,-10,-10,-10,-10,-10,-20]
+];
+
+var rookTable = [
+    [0,  0,  0,  0,  0,  0,  0,  0],
+    [5, 10, 10, 10, 10, 10, 10,  5],
+    [-5,  0,  0,  0,  0,  0,  0, -5],
+    [-5,  0,  0,  0,  0,  0,  0, -5],
+    [-5,  0,  0,  0,  0,  0,  0, -5],
+    [-5,  0,  0,  0,  0,  0,  0, -5],
+    [-5,  0,  0,  0,  0,  0,  0, -5],
+    [0,  0,  0,  5,  5,  0,  0,  0]
+];
+
+
+var queenTable = [
+    [-20,-10,-10, -5, -5,-10,-10,-20],
+    [-10,  0,  0,  0,  0,  0,  0,-10],
+    [-10,  0,  5,  5,  5,  5,  0,-10],
+    [-5,  0,  5,  5,  5,  5,  0, -5],
+    [0,  0,  5,  5,  5,  5,  0, -5],
+    [-10,  5,  5,  5,  5,  5,  0,-10],
+    [-10,  0,  5,  0,  0,  0,  0,-10],
+    [-20,-10,-10, -5, -5,-10,-10,-20]
+];
+
+var pieceImportance = function (piece) {
+    var row = !piece.set.isWhite()? piece.field.row : ChessConfig.BOARD_SIZE - 1 - piece.field.row;
+    var col = piece.set.isWhite()? piece.field.col : ChessConfig.BOARD_SIZE - 1 - piece.field.col;
+
+    switch (piece.name) {
+        case 'pawn' :
+            return 100 + pawnTable[row][col];
+        case 'knight' :
+            return 320 + knightTable[row][col];
+        case 'bishop' :
+            return 330 + bishopTable[row][col];
+        case 'rook' :
+            return 500 + rookTable[row][col];
+        case 'queen' :
+            return 900 + queenTable[row][col];
+        default :
+            throw new Error('Unknown chess piece');
+    }
+};
+
+module.exports = function (player) {
+    //manual curring...
+    return function(state) {
+        //refactor
+        var hasOwnKing = false;
+        var myScore = state.getPiecesForSet(player).reduce(function (a, piece) {
+            if (piece.name == 'king') {
+                hasOwnKing = true;
+                return a;
+            }
+
+            return a + pieceImportance(piece);
+        },0);
+
+        if (!hasOwnKing) {
+            return Number.MIN_VALUE;
+        }
+        var hasEnemyKing = false;
+
+        var enemyScore = state.getPiecesForSet(player.getEnemy()).reduce(function (a, piece) {
+            if (piece.name == 'king') {
+                hasEnemyKing = true;
+                return a;
+            }
+
+            return a + pieceImportance(piece);
+        }, 0);
+
+        if (!hasEnemyKing) {
+            return Number.MAX_VALUE;
+        }
+
+        return myScore - enemyScore;
+    };
+};
+},{"../ChessConfig":9}],8:[function(require,module,exports){
 var pieceImportance = function (piece) {
   switch (piece.name) {
     case 'pawn' :
@@ -616,8 +751,6 @@ var pieceImportance = function (piece) {
       return 4;
     case 'queen' :
       return 9;
-    case 'king' :
-      return 10;
     default :
       throw new Error('Unknown chess piece');
   }
@@ -658,14 +791,14 @@ module.exports = function (player) {
     return myScore - enemyScore;
   };
 };
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 var config = {
   BOARD_SIZE : 8
 };
 
 module.exports = config;
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 var ChessBoardRepresentation = require('./ChessBoard/ChessBoardRepresentation');
 
 var ChessGame = function() {
@@ -697,7 +830,7 @@ ChessGame.prototype =  {
 };
 
 module.exports = ChessGame;
-},{"./ChessBoard/ChessBoardRepresentation":6}],10:[function(require,module,exports){
+},{"./ChessBoard/ChessBoardRepresentation":6}],11:[function(require,module,exports){
 var CHESS_CFG = require('./ChessConfig');
 var _ = require('lodash');
 
@@ -921,7 +1054,7 @@ module.exports = {
   Queen: Queen,
   King: King
 };
-},{"./ChessConfig":8,"lodash":19}],11:[function(require,module,exports){
+},{"./ChessConfig":9,"lodash":20}],12:[function(require,module,exports){
 var ChessSet = function(chessSet) {
   if (chessSet != 'w' && chessSet != 'b') {
     throw new Error('Illegal chess set');
@@ -968,7 +1101,7 @@ var sets = {
 
 
 module.exports = sets;
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 var _ = require("lodash");
 
 module.exports = function () {
@@ -995,7 +1128,7 @@ module.exports = function () {
     }
   }
 };
-},{"lodash":19}],13:[function(require,module,exports){
+},{"lodash":20}],14:[function(require,module,exports){
 var _ = require("lodash");
 
 module.exports = function (state) {
@@ -1037,7 +1170,7 @@ module.exports = function (state) {
     }
   };
 };
-},{"lodash":19}],14:[function(require,module,exports){
+},{"lodash":20}],15:[function(require,module,exports){
 var _ = require('lodash');
 var ChessGame = require('./../../app/ChessGame');
 var ChessSet = require('./../../app/ChessSet');
@@ -1122,7 +1255,7 @@ var board = new ChessBoard('chess-board', boardCfg);
 board.position(chessGame.getGameState());
 
 dispatcher();
-},{"./../../app/ChessGame":9,"./../../app/ChessSet":11,"./Players/ComputerPlayer":15,"./Players/HumanPlayer":17,"lodash":19}],15:[function(require,module,exports){
+},{"./../../app/ChessGame":10,"./../../app/ChessSet":12,"./Players/ComputerPlayer":16,"./Players/HumanPlayer":18,"lodash":20}],16:[function(require,module,exports){
 var _ = require('lodash');
 var work = require('webworkify');
 var computerPlayerWorker = work(require('./ComputerPlayerWorker.js'));
@@ -1151,7 +1284,7 @@ ComputerPlayer.prototype.playerMove = function(move) {
 };
 
 module.exports = ComputerPlayer;
-},{"./ComputerPlayerWorker.js":16,"./Player":18,"lodash":19,"webworkify":20}],16:[function(require,module,exports){
+},{"./ComputerPlayerWorker.js":17,"./Player":19,"lodash":20,"webworkify":21}],17:[function(require,module,exports){
 var ChessAi = require('../../../app/Chess.ai');
 
 var chessAi;
@@ -1179,7 +1312,7 @@ self.onmessage = function(message) {
   }
 
 };
-},{"../../../app/Chess.ai":4}],17:[function(require,module,exports){
+},{"../../../app/Chess.ai":4}],18:[function(require,module,exports){
 var _ = require('lodash');
 var Player = require('./Player');
 
@@ -1233,7 +1366,7 @@ var stringNotationToPosition = function (stringNotation) {
 
 
 module.exports = HumanPlayer;
-},{"./Player":18,"lodash":19}],18:[function(require,module,exports){
+},{"./Player":19,"lodash":20}],19:[function(require,module,exports){
 var Player = function (set) {
   this.set = set;
 };
@@ -1255,7 +1388,7 @@ Player.prototype.playerMove = function() {
 };
 
 module.exports = Player;
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 (function (global){
 /**
  * @license
@@ -13494,7 +13627,7 @@ module.exports = Player;
 }.call(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 var bundleFn = arguments[3];
 var sources = arguments[4];
 var cache = arguments[5];
@@ -13551,4 +13684,4 @@ module.exports = function (fn) {
     ));
 };
 
-},{}]},{},[14]);
+},{}]},{},[15]);
